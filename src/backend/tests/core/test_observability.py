@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+from core.settings.base import Settings
 from fastapi.testclient import TestClient
 
 
@@ -42,7 +43,7 @@ def test_correlation_id_from_client_is_preserved(
     assert response.headers["x-correlation-id"] == "correlation-from-client"
 
 
-def test_metrics_endpoint_is_exposed(client: TestClient, settings: object) -> None:
+def test_metrics_endpoint_is_exposed(client: TestClient, settings: Settings) -> None:
     response = client.get(settings.observability.metrics_path)
 
     assert response.status_code == 200

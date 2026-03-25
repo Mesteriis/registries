@@ -1,10 +1,11 @@
 import importlib.util
 from pathlib import Path
+from typing import Any
 
 from core.http.errors import ApiError
 
 
-def _errors_module():
+def _errors_module() -> Any:
     module_path = Path(__file__).resolve().parents[3] / "apps" / "system" / "api" / "errors.py"
     spec = importlib.util.spec_from_file_location("tests.apps.system.api_errors", module_path)
     assert spec is not None

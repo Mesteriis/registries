@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 from core.observability import logging as observability_logging_module
@@ -47,7 +48,9 @@ def test_redact_sensitive_values_masks_known_secret_fields() -> None:
 def test_enrich_observability_context_adds_runtime_context_and_trace(monkeypatch: pytest.MonkeyPatch) -> None:
     request_token = set_request_id("request-1")
     correlation_token = set_correlation_id("correlation-1")
-    monkeypatch.setattr(observability_logging_module.trace, "get_current_span", lambda: _FakeSpan(valid=True))
+    monkeypatch.setattr(
+        cast(Any, observability_logging_module).trace, "get_current_span", lambda: _FakeSpan(valid=True)
+    )
     observability_logging_module._LOGGING_RUNTIME.service_name = "Platform API"
     observability_logging_module._LOGGING_RUNTIME.environment = "test"
 
@@ -82,8 +85,12 @@ def test_setup_logging_skips_when_disabled_and_configures_once(monkeypatch: pyte
     calls: list[str] = []
 
     monkeypatch.setattr(observability_logging_module, "_LOGGING_CONFIGURED", False)
-    monkeypatch.setattr(observability_logging_module.logging.config, "dictConfig", lambda config: calls.append("dict"))
-    monkeypatch.setattr(observability_logging_module.structlog, "configure", lambda **kwargs: calls.append("structlog"))
+    monkeypatch.setattr(
+        cast(Any, observability_logging_module).logging.config, "dictConfig", lambda config: calls.append("dict")
+    )
+    monkeypatch.setattr(
+        cast(Any, observability_logging_module).structlog, "configure", lambda **kwargs: calls.append("structlog")
+    )
 
     observability_logging_module.setup_logging(disabled_settings)
     observability_logging_module.setup_logging(enabled_settings)
@@ -96,7 +103,7 @@ def test_setup_logging_skips_when_disabled_and_configures_once(monkeypatch: pyte
 
 def test_get_logger_uses_structlog_factory(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        observability_logging_module.structlog.stdlib,
+        cast(Any, observability_logging_module).structlog.stdlib,
         "get_logger",
         lambda name: SimpleNamespace(name=name),
     )

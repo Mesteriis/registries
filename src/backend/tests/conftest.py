@@ -4,9 +4,11 @@ import sys
 import time
 from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 import redis
+from core.settings.base import Settings
 from faker import Faker
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -67,7 +69,7 @@ def _build_test_env(*, postgres_dsn: str, redis_url: str) -> dict[str, str]:
     }
 
 
-def _dispose_async_engine(engine: object) -> None:
+def _dispose_async_engine(engine: Any) -> None:
     asyncio.run(engine.dispose())
 
 
@@ -108,7 +110,7 @@ def redis_container() -> Iterator[DockerContainer]:
 
 @pytest.fixture(scope="session")
 def postgres_dsn(postgres_container: PostgresContainer) -> str:
-    return postgres_container.get_connection_url(driver="asyncpg")
+    return str(postgres_container.get_connection_url(driver="asyncpg"))
 
 
 @pytest.fixture(scope="session")
@@ -138,7 +140,7 @@ def app_factory(postgres_dsn: str, redis_url: str) -> Iterator[Callable[..., Fas
 
         bootstrap_module = importlib.import_module("core.bootstrap.app")
         session_module = importlib.import_module("core.db.session")
-        app = bootstrap_module.create_app()
+        app = cast(FastAPI, bootstrap_module.create_app())
         runtimes.append((monkeypatch, session_module.async_engine))
         return app
 
@@ -171,9 +173,9 @@ def reverse(app: FastAPI) -> Callable[[str], str]:
 
 
 @pytest.fixture()
-def settings(app: FastAPI) -> object:
+def settings(app: FastAPI) -> Settings:
     settings_module = importlib.import_module("core.settings")
-    return settings_module.get_settings()
+    return cast(Settings, settings_module.get_settings())
 
 
 @pytest.fixture(scope="session")

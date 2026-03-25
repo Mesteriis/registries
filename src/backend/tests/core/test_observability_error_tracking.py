@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 from core.observability import error_tracking as error_tracking_module
@@ -46,13 +47,13 @@ class _FakePushScope:
 
 
 def test_trace_context_returns_none_for_invalid_span(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(error_tracking_module.trace, "get_current_span", lambda: _FakeSpan(valid=False))
+    monkeypatch.setattr(cast(Any, error_tracking_module).trace, "get_current_span", lambda: _FakeSpan(valid=False))
 
     assert error_tracking_module._trace_context() == (None, None)
 
 
 def test_scrub_event_payload_redacts_sensitive_request_data() -> None:
-    event = {
+    event: dict[str, Any] = {
         "request": {
             "headers": {
                 "Authorization": "Bearer secret",
@@ -64,19 +65,21 @@ def test_scrub_event_payload_redacts_sensitive_request_data() -> None:
         }
     }
 
-    scrubbed = error_tracking_module._scrub_event_payload(event)
+    scrubbed = error_tracking_module._scrub_event_payload(cast(Any, event))
+    request = cast(dict[str, Any], scrubbed["request"])
+    headers = cast(dict[str, str], request["headers"])
 
-    assert scrubbed["request"]["headers"]["Authorization"] == "[REDACTED]"
-    assert scrubbed["request"]["headers"]["Cookie"] == "[REDACTED]"
-    assert scrubbed["request"]["headers"]["Set-Cookie"] == "[REDACTED]"
-    assert scrubbed["request"]["headers"]["X-Test"] == "ok"
-    assert scrubbed["request"]["data"] == "[FILTERED]"
+    assert headers["Authorization"] == "[REDACTED]"
+    assert headers["Cookie"] == "[REDACTED]"
+    assert headers["Set-Cookie"] == "[REDACTED]"
+    assert headers["X-Test"] == "ok"
+    assert request["data"] == "[FILTERED]"
 
 
 def test_before_send_enriches_event_with_context_and_trace(monkeypatch: pytest.MonkeyPatch) -> None:
     request_token = set_request_id("request-1")
     correlation_token = set_correlation_id("correlation-1")
-    monkeypatch.setattr(error_tracking_module.trace, "get_current_span", lambda: _FakeSpan(valid=True))
+    monkeypatch.setattr(cast(Any, error_tracking_module).trace, "get_current_span", lambda: _FakeSpan(valid=True))
 
     try:
         event = error_tracking_module._before_send({"request": {"headers": {}, "data": "secret"}}, {})
@@ -111,7 +114,7 @@ def test_setup_error_tracking_obeys_feature_flags_and_initializes_once(monkeypat
     )
 
     monkeypatch.setattr(error_tracking_module, "_SENTRY_CONFIGURED", False)
-    monkeypatch.setattr(error_tracking_module.sentry_sdk, "init", lambda **kwargs: calls.append(kwargs))
+    monkeypatch.setattr(cast(Any, error_tracking_module).sentry_sdk, "init", lambda **kwargs: calls.append(kwargs))
 
     error_tracking_module.setup_error_tracking(build_settings(observability={"enabled": False}))
     error_tracking_module.setup_error_tracking(build_settings(observability={"sentry_enabled": True}))
@@ -124,7 +127,7 @@ def test_setup_error_tracking_obeys_feature_flags_and_initializes_once(monkeypat
 
 
 def test_capture_handled_exception_and_flush_use_sentry_when_configured(monkeypatch: pytest.MonkeyPatch) -> None:
-    request = SimpleNamespace(url=SimpleNamespace(path="/boom"), method="POST")
+    request = cast(Any, SimpleNamespace(url=SimpleNamespace(path="/boom"), method="POST"))
     exc = RuntimeError("boom")
     scope = _FakeScope()
     captured: dict[str, object] = {}
@@ -132,15 +135,15 @@ def test_capture_handled_exception_and_flush_use_sentry_when_configured(monkeypa
     correlation_token = set_correlation_id("correlation-2")
 
     monkeypatch.setattr(error_tracking_module, "_SENTRY_CONFIGURED", True)
-    monkeypatch.setattr(error_tracking_module.trace, "get_current_span", lambda: _FakeSpan(valid=True))
-    monkeypatch.setattr(error_tracking_module.sentry_sdk, "push_scope", lambda: _FakePushScope(scope))
+    monkeypatch.setattr(cast(Any, error_tracking_module).trace, "get_current_span", lambda: _FakeSpan(valid=True))
+    monkeypatch.setattr(cast(Any, error_tracking_module).sentry_sdk, "push_scope", lambda: _FakePushScope(scope))
     monkeypatch.setattr(
-        error_tracking_module.sentry_sdk,
+        cast(Any, error_tracking_module).sentry_sdk,
         "capture_exception",
         lambda received_exc: captured.setdefault("exception", received_exc),
     )
     monkeypatch.setattr(
-        error_tracking_module.sentry_sdk,
+        cast(Any, error_tracking_module).sentry_sdk,
         "flush",
         lambda *, timeout: captured.setdefault("flush_timeout", timeout),
     )

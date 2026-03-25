@@ -2,10 +2,12 @@ import importlib
 import runpy
 import sys
 
+import pytest
+
 from tests.helpers import build_settings
 
 
-def test_main_module_imports_and_runs_uvicorn(monkeypatch) -> None:
+def test_main_module_imports_and_runs_uvicorn(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[tuple[str, object]] = []
     settings = build_settings(api={"host": "127.0.0.1", "port": 9100, "reload": True})
 
@@ -33,7 +35,7 @@ def test_main_module_imports_and_runs_uvicorn(monkeypatch) -> None:
     )
 
 
-def test_main_module_executes_run_when_started_as_script(monkeypatch) -> None:
+def test_main_module_executes_run_when_started_as_script(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
     settings = build_settings(api={"host": "0.0.0.0", "port": 8001, "reload": False})
 

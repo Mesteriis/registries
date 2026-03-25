@@ -1,13 +1,11 @@
 import asyncio
-from collections.abc import Awaitable
-from typing import Any, TypeVar
+from collections.abc import Coroutine
+from typing import Any
 
 from core.settings import ApiSettings, AppSettings, BrokerSettings, DatabaseSettings, ObservabilitySettings, Settings
 
-_T = TypeVar("_T")
 
-
-def run_async[T](awaitable: Awaitable[_T]) -> _T:
+def run_async[T](awaitable: Coroutine[Any, Any, T]) -> T:
     return asyncio.run(awaitable)
 
 

@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 from core.errors import ResourceNotFoundError
 from core.http.errors import ApiError, ApiErrorDetail, ApiErrorFactory
 
@@ -38,6 +40,7 @@ def test_api_error_factory_builds_detail_payloads_and_http_exception() -> None:
     assert platform_payload.code == "resource_not_found"
     assert platform_payload.details == (detail,)
     assert http_error.status_code == 404
-    assert http_error.detail["message"] == "Requested system probe was not found."
-    assert http_error.detail["request_id"] == "request-2"
+    http_error_detail = cast(dict[str, Any], http_error.detail)
+    assert http_error_detail["message"] == "Requested system probe was not found."
+    assert http_error_detail["request_id"] == "request-2"
     assert http_error.headers == {"X-Test": "true"}

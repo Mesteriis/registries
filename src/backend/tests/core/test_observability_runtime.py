@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 from core.observability import metrics as observability_metrics_module
@@ -94,7 +95,7 @@ def test_request_context_middleware_handles_http_and_non_http_scopes(monkeypatch
         correlation_id_header_name="X-Correlation-ID",
     )
 
-    monkeypatch.setattr(observability_middleware_module.trace, "get_current_span", lambda: span)
+    monkeypatch.setattr(cast(Any, observability_middleware_module).trace, "get_current_span", lambda: span)
 
     run_async(
         middleware(
@@ -177,7 +178,7 @@ def test_setup_observability_wires_components_once(monkeypatch: pytest.MonkeyPat
     observability_setup_module.setup_observability(app, settings)
 
     assert calls == ["logging", "error_tracking", "request_context", "metrics", "tracing"]
-    assert events == [("shutdown", observability_setup_module.flush_error_tracking)]
+    assert events == [("shutdown", cast(Any, observability_setup_module).flush_error_tracking)]
 
 
 def test_tracing_helpers_cover_provider_setup_and_flush(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -206,8 +207,8 @@ def test_tracing_helpers_cover_provider_setup_and_flush(monkeypatch: pytest.Monk
     monkeypatch.setattr(observability_tracing_module, "_TRACING_PROVIDER_CONFIGURED", False)
     monkeypatch.setattr(observability_tracing_module, "_SQLALCHEMY_INSTRUMENTED", False)
     monkeypatch.setattr(observability_tracing_module, "_REDIS_INSTRUMENTED", False)
-    monkeypatch.setattr(observability_tracing_module.trace, "get_tracer_provider", fake_get_tracer_provider)
-    monkeypatch.setattr(observability_tracing_module.trace, "set_tracer_provider", fake_set_tracer_provider)
+    monkeypatch.setattr(cast(Any, observability_tracing_module).trace, "get_tracer_provider", fake_get_tracer_provider)
+    monkeypatch.setattr(cast(Any, observability_tracing_module).trace, "set_tracer_provider", fake_set_tracer_provider)
     monkeypatch.setattr(observability_tracing_module, "TracerProvider", _FakeProvider)
     monkeypatch.setattr(
         observability_tracing_module, "Resource", SimpleNamespace(create=lambda attrs: ("resource", attrs))

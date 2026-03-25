@@ -1,10 +1,11 @@
 import importlib
 import sys
 
+import pytest
 from tests.helpers import build_settings
 
 
-def test_runtime_orchestration_exports_broker_from_settings(monkeypatch) -> None:
+def test_runtime_orchestration_exports_broker_from_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: dict[str, object] = {}
     settings = build_settings(
         db={"redis_url": "redis://cache.example:6379/7"},

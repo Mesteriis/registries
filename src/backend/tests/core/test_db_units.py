@@ -1,5 +1,6 @@
 from collections.abc import AsyncIterator
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 from core.db import session as db_session_module
@@ -36,7 +37,7 @@ class _FakeSession:
 
 
 def test_persistence_components_expose_session_and_component_name() -> None:
-    session = object()
+    session = cast(Any, object())
     component = PersistenceComponent(session, component_name="component")
     repository = AsyncRepository(session, repository_name="repository")
     query_service = AsyncQueryService(session, service_name="query-service")
@@ -56,7 +57,7 @@ def test_get_db_session_yields_and_closes_session(monkeypatch: pytest.MonkeyPatc
         generator = get_db_session()
         yielded = await anext(generator)
 
-        assert yielded is session
+        assert cast(Any, yielded) is session
 
         with pytest.raises(StopAsyncIteration):
             await anext(generator)
@@ -89,7 +90,7 @@ def test_ping_database_executes_probe_query(monkeypatch: pytest.MonkeyPatch) -> 
 
 def test_base_async_unit_of_work_proxies_session_methods() -> None:
     session = _FakeSession()
-    uow = BaseAsyncUnitOfWork(session, owns_session=False)
+    uow = BaseAsyncUnitOfWork(cast(Any, session), owns_session=False)
 
     async def scenario() -> None:
         assert (await uow.__aenter__()) is uow
@@ -99,7 +100,7 @@ def test_base_async_unit_of_work_proxies_session_methods() -> None:
 
     run_async(scenario())
 
-    assert uow.session is session
+    assert cast(Any, uow.session) is session
     assert session.commit_calls == 1
     assert session.rollback_calls == 1
     assert session.flush_calls == 1
@@ -109,7 +110,7 @@ def test_base_async_unit_of_work_rolls_back_and_closes_owned_session() -> None:
     session = _FakeSession(in_transaction=True)
 
     async def scenario() -> None:
-        async with BaseAsyncUnitOfWork(session, owns_session=True):
+        async with BaseAsyncUnitOfWork(cast(Any, session), owns_session=True):
             pass
 
     run_async(scenario())
@@ -122,7 +123,7 @@ def test_base_async_unit_of_work_rolls_back_on_exception() -> None:
     session = _FakeSession()
 
     async def scenario() -> None:
-        async with BaseAsyncUnitOfWork(session, owns_session=True):
+        async with BaseAsyncUnitOfWork(cast(Any, session), owns_session=True):
             raise RuntimeError("boom")
 
     with pytest.raises(RuntimeError):
@@ -133,7 +134,7 @@ def test_base_async_unit_of_work_rolls_back_on_exception() -> None:
 
 
 def test_base_async_unit_of_work_handles_sessions_without_transaction_method() -> None:
-    uow = BaseAsyncUnitOfWork(object(), owns_session=False)
+    uow = BaseAsyncUnitOfWork(cast(Any, object()), owns_session=False)
 
     assert uow._transaction_is_open() is False
 
@@ -144,14 +145,14 @@ def test_async_unit_of_work_uses_session_factory(monkeypatch: pytest.MonkeyPatch
 
     uow = AsyncUnitOfWork()
 
-    assert uow.session is session
+    assert cast(Any, uow.session) is session
 
 
 def test_session_unit_of_work_keeps_external_session_open() -> None:
     session = _FakeSession()
 
     async def scenario() -> None:
-        async with SessionUnitOfWork(session):
+        async with SessionUnitOfWork(cast(Any, session)):
             pass
 
     run_async(scenario())
@@ -176,7 +177,7 @@ def test_get_uow_yields_context_managed_instance(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(db_uow_module, "AsyncUnitOfWork", FakeAsyncUnitOfWork)
 
     async def scenario() -> None:
-        generator: AsyncIterator[str] = get_uow()
+        generator: AsyncIterator[Any] = get_uow()
         assert await anext(generator) == "uow"
         with pytest.raises(StopAsyncIteration):
             await anext(generator)
