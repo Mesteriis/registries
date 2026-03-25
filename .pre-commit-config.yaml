@@ -1,0 +1,214 @@
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: backend-sync
+        name: Sync backend dependencies
+        entry: python3 scripts/run_backend_sync.py
+        language: system
+        pass_filenames: false
+
+      - id: frontend-install
+        name: Install frontend dependencies
+        entry: python3 scripts/run_frontend_install.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-lint
+        name: Run backend ruff --fix and format
+        entry: python3 scripts/run_backend_lint_fix.py
+        language: system
+        pass_filenames: false
+
+      - id: backend-pyupgrade
+        name: Run backend pyupgrade
+        entry: python3 scripts/run_backend_pyupgrade.py
+        language: system
+        pass_filenames: false
+
+      - id: backend-architecture
+        name: Validate backend architecture
+        entry: python3 scripts/check_backend_architecture.py
+        language: system
+        pass_filenames: false
+
+      - id: backend-eradicate
+        name: Run backend eradicate
+        entry: python3 scripts/run_backend_eradicate.py
+        language: system
+        pass_filenames: false
+
+      - id: validate-adrs
+        name: Validate ADR files and indexes
+        entry: python3 scripts/check_adrs.py
+        language: system
+        pass_filenames: false
+
+      - id: validate-repo-structure
+        name: Validate repository structure
+        entry: python3 scripts/check_repo_structure.py
+        language: system
+        pass_filenames: false
+
+      - id: validate-specs
+        name: Validate specs layout and naming
+        entry: python3 scripts/check_specs.py
+        language: system
+        pass_filenames: false
+
+      - id: frontend-lint-fix
+        name: Run frontend lint --fix
+        entry: python3 scripts/run_frontend_lint_fix.py
+        language: system
+        pass_filenames: false
+
+      - id: backend-tests
+        name: Run backend tests
+        entry: python3 scripts/run_backend_tests.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-lint-check
+        name: Run backend lint checks
+        entry: python3 scripts/run_backend_lint.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-types
+        name: Run backend type checks
+        entry: python3 scripts/run_backend_types.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-import-boundaries
+        name: Run backend import boundary checks
+        entry: python3 scripts/run_backend_import_boundaries.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-bandit
+        name: Run backend bandit
+        entry: python3 scripts/run_backend_bandit.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-deptry
+        name: Run backend deptry
+        entry: python3 scripts/run_backend_deptry.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-pip-audit
+        name: Run backend pip-audit
+        entry: scripts/run_backend_pip_audit.sh
+        language: script
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-tryceratops
+        name: Run backend tryceratops
+        entry: python3 scripts/run_backend_tryceratops.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: backend-xenon
+        name: Run backend xenon
+        entry: python3 scripts/run_backend_xenon.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: frontend-build
+        name: Build frontend
+        entry: python3 scripts/run_frontend_build.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: frontend-types
+        name: Run frontend type checks
+        entry: python3 scripts/run_frontend_types.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: frontend-tests
+        name: Run frontend unit tests
+        entry: python3 scripts/run_frontend_tests.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: frontend-lint
+        name: Run frontend lint
+        entry: python3 scripts/run_frontend_lint.py
+        language: system
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: shellcheck-assets
+        name: Run shellcheck
+        entry: scripts/run_shellcheck.sh
+        language: script
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: hadolint-assets
+        name: Run hadolint
+        entry: scripts/run_hadolint.sh
+        language: script
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: trivy-fs
+        name: Run trivy filesystem scan
+        entry: scripts/run_trivy_fs.sh
+        language: script
+        pass_filenames: false
+        stages:
+          - pre-push
+
+      - id: docker-build-template
+        name: Build template Docker targets
+        entry: scripts/run_docker_builds.sh
+        language: script
+        pass_filenames: false
+        stages:
+          - pre-push

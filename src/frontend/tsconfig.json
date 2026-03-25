@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node", "vitest/globals"]
   },
   "include": ["**/*.ts", "**/*.d.ts", "**/*.tsx", "**/*.vue"]
 }

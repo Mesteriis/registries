@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-03-25
-- Deciders: core engineering team
+- Deciders: avm
 - Supersedes:
 - Superseded by:
 
@@ -25,6 +25,7 @@
 - отдельный index or search layer при необходимости.
 
 Storage design не должен пытаться обслужить все три класса данных через одно универсальное хранилище по умолчанию.
+Эволюция схемы relational storage управляется через versioned migrations в `PostgreSQL`, а не через ad-hoc SQL-правки в окружениях.
 
 ## Consequences
 

@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-03-25
-- Deciders: core engineering team
+- Deciders: avm
 - Supersedes:
 - Superseded by:
 
@@ -28,6 +28,7 @@
 - broker отвечает за доставку и координацию выполнения задач;
 - `PostgreSQL` является source of truth для доменного состояния;
 - `Redis Streams` не рассматривается как долговременное хранилище бизнес-состояния.
+- schema evolution для `PostgreSQL` управляется через versioned migrations; детали фиксируются отдельным ADR про `Alembic`.
 
 ## Consequences
 

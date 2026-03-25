@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-03-25
-- Deciders: core engineering team
+- Deciders: avm
 - Supersedes:
 - Superseded by:
 
@@ -19,6 +19,8 @@ Runtime разделяется как минимум на:
 - optional scheduled or reconciliation workers.
 
 Control plane не должен зависеть по latency и ресурсам от тяжёлых background tasks. Для локальной разработки допускается collapsed topology, но production model остаётся разделённой.
+
+Schema migrations для primary relational database не выполняются как часть FastAPI app bootstrap. Они запускаются либо как отдельный административный или deployment step, либо как явный pre-start шаг backend container entrypoint до старта API-процесса.
 
 ## Consequences
 

@@ -1,13 +1,19 @@
-from fastapi import FastAPI
+import uvicorn
+from core.bootstrap import create_app
+from core.settings import get_settings
 
-app = FastAPI()
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+settings = get_settings()
+app = create_app()
 
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+def run() -> None:
+    uvicorn.run(
+        "main:app",
+        host=settings.api_host,
+        port=settings.api_port,
+        reload=settings.api_reload,
+    )
+
+
+if __name__ == "__main__":
+    run()

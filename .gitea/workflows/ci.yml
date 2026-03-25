@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+
+jobs:
+  backend:
+    runs-on: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync backend dependencies
+        run: |
+          cd src/backend
+          uv sync --group dev
+
+      - name: Validate architecture and specs
+        run: |
+          python3 scripts/check_adrs.py
+          python3 scripts/check_repo_structure.py
+          python3 scripts/check_backend_architecture.py
+          python3 scripts/check_specs.py
+
+      - name: Run backend quality checks
+        run: |
+          cd src/backend
+          uv run ruff check api apps core runtime main.py tests
+          uv run ruff format --check api apps core runtime main.py tests
+          uv run mypy api apps core runtime main.py tests
+          uv run lint-imports
+          uv run bandit -q -r api apps core runtime -s B104,B105,B106
+          uv run deptry . --config pyproject.toml --per-rule-ignores 'DEP002=alembic|asyncpg|greenlet|redis|taskiq'
+          uv run tryceratops -i TRY003 -i TRY300 -i TRY301 -i TRY101 -i TRY203 -i TRY401 api apps core runtime main.py
+          uv run xenon --max-absolute F --max-modules D --max-average A api apps core runtime main.py
+          uv run pytest -x -q
+
+      - name: Audit backend dependencies
+        run: ./scripts/run_backend_pip_audit.sh
+
+  frontend:
+    runs-on: node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install frontend dependencies
+        run: |
+          cd src/frontend
+          pnpm install --frozen-lockfile
+
+      - name: Run frontend quality checks
+        run: |
+          cd src/frontend
+          pnpm lint
+          pnpm type-check
+          pnpm build
+          pnpm test:unit
+
+  security-and-images:
+    runs-on: main
+    needs:
+      - backend
+      - frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run shellcheck and hadolint
+        run: |
+          ./scripts/run_shellcheck.sh
+          ./scripts/run_hadolint.sh
+
+      - name: Run trivy filesystem scan
+        run: ./scripts/run_trivy_fs.sh
+
+      - name: Build and tag container images
+        run: |
+          BRANCH="${GITHUB_REF_NAME//\//-}"
+          BACKEND_IMAGE="registry.local/template-backend"
+          FRONTEND_IMAGE="registry.local/template-frontend"
+
+          docker build -f docker/Dockerfile --target backend -t "$BACKEND_IMAGE:${{ github.sha }}" .
+          docker tag "$BACKEND_IMAGE:${{ github.sha }}" "$BACKEND_IMAGE:latest"
+          docker tag "$BACKEND_IMAGE:${{ github.sha }}" "$BACKEND_IMAGE:$BRANCH"
+
+          docker build -f docker/Dockerfile --target frontend -t "$FRONTEND_IMAGE:${{ github.sha }}" .
+          docker tag "$FRONTEND_IMAGE:${{ github.sha }}" "$FRONTEND_IMAGE:latest"
+          docker tag "$FRONTEND_IMAGE:${{ github.sha }}" "$FRONTEND_IMAGE:$BRANCH"
