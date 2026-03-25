@@ -10,6 +10,7 @@
 
 - [ADR-0006](./0006-authn-authz-and-machine-identities.md)
 - [ADR-0015](./0015-enforce-template-quality-gates-and-governance-baseline.md)
+- [ADR-0022](./0022-group-backend-settings-into-nested-platform-models.md)
 - [ADR-1001](../product/1001-trust-and-verification-policy.md)
 - [ADR-1003](../product/1003-quarantine-and-security-gates.md)
 

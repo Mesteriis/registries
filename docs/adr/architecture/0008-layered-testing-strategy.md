@@ -12,6 +12,8 @@
 - [ADR-0003](./0003-event-driven-internal-integration.md)
 - [ADR-0013](./0013-adopt-a-flat-backend-service-root-and-bounded-context-layout.md)
 - [ADR-0014](./0014-enforce-backend-dependency-direction-and-import-boundaries.md)
+- [ADR-0017](./0017-standardize-backend-testing-on-pytest-testcontainers-and-full-request-flows.md)
+- [ADR-0018](./0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md)
 - [ADR-0015](./0015-enforce-template-quality-gates-and-governance-baseline.md)
 
 ## Context

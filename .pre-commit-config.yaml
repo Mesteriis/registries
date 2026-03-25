@@ -41,7 +41,13 @@ repos:
 
       - id: backend-architecture
         name: Validate backend architecture
-        entry: python3 scripts/check_backend_architecture.py
+        entry: uv run --project src/backend python scripts/check_backend_architecture.py
+        language: system
+        pass_filenames: false
+
+      - id: backend-observability
+        name: Validate backend observability rules
+        entry: uv run --project src/backend python scripts/check_backend_observability.py
         language: system
         pass_filenames: false
 

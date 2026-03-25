@@ -11,6 +11,9 @@
 - [ADR-0008](./0008-layered-testing-strategy.md)
 - [ADR-0013](./0013-adopt-a-flat-backend-service-root-and-bounded-context-layout.md)
 - [ADR-0015](./0015-enforce-template-quality-gates-and-governance-baseline.md)
+- [ADR-0017](./0017-standardize-backend-testing-on-pytest-testcontainers-and-full-request-flows.md)
+- [ADR-0018](./0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md)
+- [ADR-0019](./0019-centralize-persistence-behind-repositories-query-services-and-exhaustive-layer-contracts.md)
 
 ## Context
 
@@ -64,6 +67,7 @@ Enforcement model:
 
 - bootstrap modules могут иметь ограниченные исключения для composition root;
 - import boundaries должны постепенно усиливаться через linter и CI hooks;
+- top-level boundary contract должен стремиться к exhaustive enforcement с явными allowlist-исключениями;
 - новые исключения допускаются только как явный архитектурный компромисс, а не как молчаливое правило.
 
 ## Consequences

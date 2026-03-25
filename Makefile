@@ -1,10 +1,11 @@
 .DEFAULT_GOAL := help
+BACKEND_PYTHON := uv run --project src/backend python
 
 .PHONY: help \
 	backend-sync frontend-install install-hooks bootstrap \
 	check check-environment doctor \
 	backend-fix frontend-fix fix \
-	backend-lint frontend-lint repo-lint lint \
+	backend-lint backend-observability frontend-lint repo-lint lint \
 	backend-types frontend-types \
 	backend-test frontend-test test \
 	frontend-build build \
@@ -37,7 +38,8 @@ check-environment: ## Validate required local tooling
 check: ## Run repository invariants
 	python3 scripts/check_adrs.py
 	python3 scripts/check_repo_structure.py
-	python3 scripts/check_backend_architecture.py
+	$(BACKEND_PYTHON) scripts/check_backend_architecture.py
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/check_specs.py
 	python3 scripts/check_template_consistency.py
 	python3 scripts/check_ci_symmetry.py
@@ -48,7 +50,8 @@ doctor: ## Validate environment and core template invariants
 	@echo "==> Validating repository skeleton, ADRs and architecture"
 	python3 scripts/check_adrs.py
 	python3 scripts/check_repo_structure.py
-	python3 scripts/check_backend_architecture.py
+	$(BACKEND_PYTHON) scripts/check_backend_architecture.py
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/check_specs.py
 	python3 scripts/check_template_consistency.py
 	python3 scripts/check_ci_symmetry.py
@@ -72,10 +75,14 @@ fix: ## Run all autofixers
 
 backend-lint: ## Run backend lint pipeline
 	python3 scripts/run_backend_lint.py
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/run_backend_import_boundaries.py
 	python3 scripts/run_backend_deptry.py
 	python3 scripts/run_backend_tryceratops.py
 	python3 scripts/run_backend_xenon.py
+
+backend-observability: ## Validate backend observability invariants
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 
 frontend-lint: ## Run frontend lint pipeline
 	python3 scripts/run_frontend_lint.py
@@ -87,6 +94,7 @@ repo-lint: ## Run shell and Dockerfile lint checks
 lint: ## Run full lint pipeline
 	@echo "==> Linting backend"
 	python3 scripts/run_backend_lint.py
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/run_backend_import_boundaries.py
 	python3 scripts/run_backend_deptry.py
 	python3 scripts/run_backend_tryceratops.py
@@ -147,12 +155,14 @@ ci: ## Run the full golden-master pipeline
 	@echo "==> Running invariant checks"
 	python3 scripts/check_adrs.py
 	python3 scripts/check_repo_structure.py
-	python3 scripts/check_backend_architecture.py
+	$(BACKEND_PYTHON) scripts/check_backend_architecture.py
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/check_specs.py
 	python3 scripts/check_template_consistency.py
 	python3 scripts/check_ci_symmetry.py
 	@echo "==> Running lint pipeline"
 	python3 scripts/run_backend_lint.py
+	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/run_backend_import_boundaries.py
 	python3 scripts/run_backend_deptry.py
 	python3 scripts/run_backend_tryceratops.py

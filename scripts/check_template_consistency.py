@@ -30,6 +30,7 @@ REQUIRED_TARGETS = {
 REQUIRED_SCRIPTS = {
     "scripts/check_adrs.py",
     "scripts/check_backend_architecture.py",
+    "scripts/check_backend_observability.py",
     "scripts/check_ci_symmetry.py",
     "scripts/check_environment.py",
     "scripts/check_repo_structure.py",

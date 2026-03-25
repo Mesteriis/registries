@@ -12,6 +12,8 @@
 - [ADR-0009](./0009-deployment-topology-and-runtime-model.md)
 - [ADR-0012](./0012-define-repository-layout-and-file-placement-rules.md)
 - [ADR-0014](./0014-enforce-backend-dependency-direction-and-import-boundaries.md)
+- [ADR-0017](./0017-standardize-backend-testing-on-pytest-testcontainers-and-full-request-flows.md)
+- [ADR-0018](./0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md)
 
 ## Context
 
@@ -66,7 +68,7 @@ apps/<context>/
 
 Назначение top-level packages:
 
-- `api` отвечает за HTTP и transport wiring;
+- `api` отвечает за HTTP versioning, root router composition и transport wiring, но не является складом app-level contracts;
 - `apps` отвечает за domain-owned bounded contexts;
 - `core` отвечает за shared settings, bootstrap, db primitives и другие стабильные платформенные модули;
 - `runtime` отвечает за async workers, background orchestration и messaging runtime.
@@ -75,9 +77,15 @@ apps/<context>/
 
 - `api` для transport adapters, dependency wiring и response mapping;
 - `application` для use cases и orchestration;
-- `contracts` для typed boundary models;
+- `contracts` для typed boundary models, принадлежащих bounded context;
 - `domain` для business rules, entities и policies;
 - `infrastructure` для persistence и технических adapters.
+
+Правило ownership для контрактов:
+
+- app-level contracts живут в `apps/<context>/contracts`;
+- top-level `api/` не должен накапливать per-context request/response schemas;
+- truly global transport envelopes допустимы только как редкое исключение и не должны подменять ownership bounded contexts.
 
 ## Consequences
 

@@ -19,6 +19,12 @@
 - [ADR-0012](./architecture/0012-define-repository-layout-and-file-placement-rules.md) - layout и placement rules;
 - [ADR-0015](./architecture/0015-enforce-template-quality-gates-and-governance-baseline.md) - quality gates, governance и security baseline;
 - [ADR-0016](./architecture/0016-support-github-and-gitea-ci-for-template-repositories.md) - CI baseline для GitHub и Gitea.
+- [ADR-0017](./architecture/0017-standardize-backend-testing-on-pytest-testcontainers-and-full-request-flows.md) - backend testing baseline на pytest и Testcontainers.
+- [ADR-0018](./architecture/0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md) - typed contracts, repositories и Unit of Work.
+- [ADR-0019](./architecture/0019-centralize-persistence-behind-repositories-query-services-and-exhaustive-layer-contracts.md) - repository/query split и exhaustive layer contracts.
+- [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md) - centralized error registry и typed HTTP error projection.
+- [ADR-0021](./architecture/0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md) - centralized observability bootstrap, structured logging, tracing, metrics and GlitchTip.
+- [ADR-0022](./architecture/0022-group-backend-settings-into-nested-platform-models.md) - grouped backend settings, nested env keys and clearer config ownership.
 - [ADR-2000](./engineering/2000-centralize-template-metadata-and-self-consistency-checks.md) - template metadata и self-consistency enforcement.
 
 ## Reading Map By Change Area
@@ -45,6 +51,12 @@
 - [ADR-0011](./architecture/0011-manage-postgresql-schema-with-alembic.md)
 - [ADR-0013](./architecture/0013-adopt-a-flat-backend-service-root-and-bounded-context-layout.md)
 - [ADR-0014](./architecture/0014-enforce-backend-dependency-direction-and-import-boundaries.md)
+- [ADR-0017](./architecture/0017-standardize-backend-testing-on-pytest-testcontainers-and-full-request-flows.md)
+- [ADR-0018](./architecture/0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md)
+- [ADR-0019](./architecture/0019-centralize-persistence-behind-repositories-query-services-and-exhaustive-layer-contracts.md)
+- [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md)
+- [ADR-0021](./architecture/0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md)
+- [ADR-0022](./architecture/0022-group-backend-settings-into-nested-platform-models.md)
 
 ### Backend apps and product semantics
 
@@ -57,6 +69,10 @@
 
 - [ADR-0013](./architecture/0013-adopt-a-flat-backend-service-root-and-bounded-context-layout.md)
 - [ADR-0014](./architecture/0014-enforce-backend-dependency-direction-and-import-boundaries.md)
+- [ADR-0017](./architecture/0017-standardize-backend-testing-on-pytest-testcontainers-and-full-request-flows.md)
+- [ADR-0018](./architecture/0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md)
+- [ADR-0019](./architecture/0019-centralize-persistence-behind-repositories-query-services-and-exhaustive-layer-contracts.md)
+- [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md)
 
 Если изменение затрагивает trust, verification, quarantine, promotion, metadata, audit, state или storage semantics, дополнительно читать:
 
@@ -104,6 +120,8 @@
 - [ADR-0007](./architecture/0007-configuration-and-policy-as-code.md)
 - [ADR-0015](./architecture/0015-enforce-template-quality-gates-and-governance-baseline.md)
 - [ADR-0016](./architecture/0016-support-github-and-gitea-ci-for-template-repositories.md)
+- [ADR-0021](./architecture/0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md)
+- [ADR-0022](./architecture/0022-group-backend-settings-into-nested-platform-models.md)
 - [ADR-2000](./engineering/2000-centralize-template-metadata-and-self-consistency-checks.md)
 
 ### ADR and rule changes

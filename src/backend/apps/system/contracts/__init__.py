@@ -1,3 +1,4 @@
-from apps.system.contracts.health import ServiceHealth
+from apps.system.contracts.health import DependencyProbe, LivenessProbe, ReadinessProbe
+from apps.system.contracts.meta import ServiceMetadata
 
-__all__ = ["ServiceHealth"]
+__all__ = ["DependencyProbe", "LivenessProbe", "ReadinessProbe", "ServiceMetadata"]

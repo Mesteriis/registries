@@ -8,10 +8,19 @@ dependencies = [
     "asyncpg>=0.30.0,<1.0.0",
     "fastapi>=0.122.0,<1.0.0",
     "greenlet>=3.1.1,<4.0.0",
+    "opentelemetry-exporter-otlp>=1.38.0,<2.0.0",
+    "opentelemetry-instrumentation-fastapi>=0.59b0,<1.0.0",
+    "opentelemetry-instrumentation-redis>=0.59b0,<1.0.0",
+    "opentelemetry-instrumentation-sqlalchemy>=0.59b0,<1.0.0",
+    "opentelemetry-sdk>=1.38.0,<2.0.0",
     "pydantic>=2.12.0,<3.0.0",
     "pydantic-settings>=2.11.0,<3.0.0",
+    "prometheus-fastapi-instrumentator>=7.1.0,<8.0.0",
     "redis>=5.2.0,<8.0.0",
+    "sentry-sdk[fastapi]>=2.29.0,<3.0.0",
     "sqlalchemy>=2.0.30,<3.0.0",
+    "starlette>=0.52.1,<1.0.0",
+    "structlog>=25.4.0,<26.0.0",
     "taskiq>=0.11.18,<1.0.0",
     "taskiq-redis>=1.0.0,<2.0.0",
     "uvicorn[standard]>=0.30.0,<1.0.0",
@@ -45,7 +54,7 @@ line-length = 120
 src = ["api", "apps", "core", "runtime", "tests"]
 
 [tool.ruff.lint]
-select = ["B", "C4", "E9", "F811", "F821", "F822", "F823", "I", "PERF", "RET", "RUF", "SIM", "UP"]
+select = ["B", "C4", "E9", "F811", "F821", "F822", "F823", "I", "PERF", "RET", "RUF", "SIM", "T20", "UP"]
 ignore = ["B008", "RUF012"]
 
 [tool.mypy]
@@ -71,6 +80,9 @@ type = "layers"
 layers = ["api", "runtime", "apps", "core"]
 ignore_imports = [
     "core.bootstrap.* -> api",
+    "core.bootstrap.app -> apps.system.contracts",
+    "core.bootstrap.system -> apps.system.application.services",
+    "core.bootstrap.system -> apps.system.infrastructure.repositories",
 ]
 
 [tool.uv]

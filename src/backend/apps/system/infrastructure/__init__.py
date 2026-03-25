@@ -1,1 +1,3 @@
-"""Infrastructure layer for system concerns."""
+from apps.system.infrastructure.repositories import SystemHealthRepository
+
+__all__ = ["SystemHealthRepository"]

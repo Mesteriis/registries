@@ -10,6 +10,7 @@
 
 - [ADR-0003](./0003-event-driven-internal-integration.md)
 - [ADR-0006](./0006-authn-authz-and-machine-identities.md)
+- [ADR-0021](./0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md)
 - [ADR-1004](../product/1004-storage-strategy-for-artifacts-metadata-and-decisions.md)
 
 ## Context
