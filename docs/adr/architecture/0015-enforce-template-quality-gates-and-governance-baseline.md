@@ -18,65 +18,65 @@
 
 ## Context
 
-Шаблонный репозиторий ценен только если он переносит не набор файлов, а работающий engineering baseline. Без этого новые проекты начинают быстро расходиться:
+A template repository is valuable only if it transfers a working engineering
+baseline, not just a set of files. Without that, derived projects drift
+quickly:
 
-- архитектурные ограничения остаются только в ADR и не проверяются автоматически;
-- spec-first сводится к декларации без naming и placement rules;
-- локальный developer workflow и CI дают разный результат;
-- governance артефакты вроде `CODEOWNERS`, contribution guide и security policy добавляются нерегулярно;
-- базовые security checks появляются слишком поздно и уже после появления сервисов.
-
-Нужен единый baseline, который будет поставляться вместе с шаблоном и проходить machine-enforced validation.
+- architecture constraints remain only in ADRs and are not checked automatically;
+- spec-first becomes a declaration with no naming or placement enforcement;
+- local developer workflow and CI return different results;
+- governance artifacts such as `CODEOWNERS`, the contribution guide, and security policy appear inconsistently;
+- baseline security checks arrive too late, after services already exist.
 
 ## Decision
 
-Шаблонный репозиторий обязан включать единый quality and governance baseline:
+The template repository must include one shared quality and governance baseline:
 
-- machine-enforced checks для ADR, repo structure, backend architecture и spec placement;
-- локальный automation layer через `Makefile` и `pre-commit`;
-- governance artifacts: `CODEOWNERS`, `CONTRIBUTING.md`, `SECURITY.md`, issue/PR templates;
-- security baseline checks: dependency audit, `bandit`, `trivy`, `hadolint`, `shellcheck`;
-- frontend baseline: lint, type-check, unit tests и production build;
-- backend baseline: lint, format, type-check, import boundaries, architecture checks и tests.
+- machine-enforced checks for ADRs, repository structure, backend architecture, and spec placement;
+- a local automation layer through `Makefile` and `pre-commit`;
+- governance artifacts such as `CODEOWNERS`, `CONTRIBUTING.md`, `SECURITY.md`, and issue or PR templates;
+- baseline security checks such as dependency audit, `bandit`, `trivy`, `hadolint`, and `shellcheck`;
+- a frontend baseline with lint, type-check, unit tests, and production build;
+- a backend baseline with lint, format, type-check, import boundaries, architecture checks, and tests.
 
 Spec-first baseline:
 
-- `specs/` остаётся source of truth для контрактов;
-- naming rules для OpenAPI, AsyncAPI и JSON Schema валидируются автоматически;
-- generated artifacts считаются производными и не подменяют исходные контракты.
+- `specs/` remains the source of truth for contracts;
+- naming rules for OpenAPI, AsyncAPI, and JSON Schema are validated automatically;
+- generated artifacts remain derived artifacts and never replace the source contracts.
 
 DX baseline:
 
-- репозиторий должен содержать короткий набор canonical commands для sync, check, lint, test и build;
-- локальные hooks должны быть совместимы с CI pipeline, а не вводить собственный альтернативный процесс.
+- the repository must expose a short set of canonical commands for sync, check, lint, test, and build;
+- local hooks must stay compatible with the CI pipeline rather than creating a separate alternative process.
 
 ## Consequences
 
 ### Positive
 
-- новый проект получает не только scaffold, но и рабочую инженерную дисциплину;
-- architectural drift ловится раньше и дешевле;
-- onboarding становится короче и предсказуемее;
-- security и governance перестают быть необязательным follow-up.
+- new projects get a working engineering discipline instead of only a scaffold;
+- architectural drift is caught earlier and more cheaply;
+- onboarding becomes shorter and more predictable;
+- security and governance stop being optional follow-up work.
 
 ### Negative
 
-- стартовый шаблон становится тяжелее по числу checks и служебных файлов;
-- поддержка baseline требует регулярного обновления tooling и workflow definitions.
+- the initial template becomes heavier in checks and support files;
+- maintaining the baseline requires regular tooling and workflow updates.
 
 ### Neutral
 
-- конкретные инструменты внутри baseline могут эволюционировать, если сохраняется сам принцип machine-enforced quality gates.
+- concrete tools inside the baseline may evolve as long as the principle of machine-enforced quality gates remains.
 
 ## Alternatives considered
 
-- ограничиться только README и ADR без автоматических checks;
-- отдать governance и security baseline на усмотрение каждого нового проекта;
-- включать только language-specific lint/test без repo-wide правил.
+- relying only on README and ADRs without automated checks;
+- leaving governance and security baseline decisions to every new project;
+- including only language-specific lint and tests with no repo-wide rules.
 
 ## Follow-up work
 
-- [x] добавить repo-wide validators для architecture и specs
-- [x] добавить governance baseline files
-- [x] добавить DX entrypoints для локального запуска quality gates
-- [ ] добавить template bootstrap/init flow для переименования project-specific identifiers
+- [x] add repo-wide validators for architecture and specs
+- [x] add governance baseline files
+- [x] add DX entrypoints for local quality gates
+- [ ] add a template bootstrap/init flow for renaming project-specific identifiers

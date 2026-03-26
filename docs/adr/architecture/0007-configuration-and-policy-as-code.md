@@ -16,48 +16,52 @@
 
 ## Context
 
-Операционные правила, trust policy, routing rules, thresholds и feature toggles не должны жить только в UI, в базе данных или в памяти отдельных операторов. Такие решения требуют review, diff и rollback.
+Operational rules, trust policy, routing rules, thresholds, and toggles should
+not live only in a UI, a database, or in the heads of individual operators.
+These decisions need review, diffs, and rollback.
 
 ## Decision
 
-Конфигурация и policy, влияющие на поведение платформы, хранятся как code/config под version control.
+Configuration and policy that influence platform behavior are kept as code or
+config under version control.
 
-Это относится к:
+This includes:
 
 - operational policy;
 - trust and verification rules;
 - environment-specific configuration;
-- allow/deny lists;
-- thresholds и gates;
+- allow and deny lists;
+- thresholds and gates;
 - override rules.
 
-Изменение таких правил проходит review и валидацию до применения.
+Changes to these rules go through review and validation before they are
+applied.
 
 ## Consequences
 
 ### Positive
 
-- появляется reviewable history изменения правил;
-- проще делать rollback и анализировать diff;
-- выше воспроизводимость между окружениями.
+- rule changes get a reviewable history;
+- rollback and diff analysis become easier;
+- reproducibility across environments improves.
 
 ### Negative
 
-- меньше мгновенной операторской гибкости;
-- нужны безопасные механизмы загрузки и валидации policy.
+- operators get less instant flexibility;
+- safe mechanisms for policy loading and validation are required.
 
 ### Neutral
 
-- UI над policy-as-code допустим, если он генерирует versioned source of truth.
+- a UI on top of policy-as-code is acceptable if it still generates a versioned source of truth.
 
 ## Alternatives considered
 
-- policy только в базе данных;
-- policy только в UI;
-- ручные overrides без versioned source of truth.
+- keeping policy only in a database;
+- keeping policy only in a UI;
+- manual overrides with no versioned source of truth.
 
 ## Follow-up work
 
-- [ ] выбрать format для policy
-- [ ] описать validation pipeline
-- [ ] определить override process
+- [ ] choose the policy format
+- [ ] describe the validation pipeline
+- [ ] define the override process

@@ -15,45 +15,48 @@
 
 ## Context
 
-Система имеет внешние и внутренние интерфейсы: HTTP API, события, схемы данных и generated clients. Если контракты появляются постфактум, начинается drift между реализацией, клиентами и тестами.
+The system exposes external and internal interfaces: HTTP APIs, events, data
+schemas, and generated clients. If contracts are written after implementation,
+drift begins between runtime code, clients, and tests.
 
 ## Decision
 
-Принимается API-first подход:
+The repository follows an API-first process:
 
-- сначала меняется контракт;
-- затем обновляются примеры и версии;
-- затем генерируются артефакты;
-- затем реализуется код;
-- затем обновляются contract tests.
+- change the contract first;
+- update examples and versions next;
+- regenerate artifacts;
+- implement the code;
+- update contract tests last.
 
-Breaking changes допускаются только через новую версию контракта. Контракты хранятся в `specs/` и считаются source of truth для публичных surface area.
+Breaking changes are allowed only through a new contract version. Contracts live
+in `specs/` and remain the source of truth for public surfaces.
 
 ## Consequences
 
 ### Positive
 
-- уменьшается contract drift;
-- упрощается синхронизация backend и frontend;
-- контракт становится reviewable artifact, а не побочным продуктом реализации.
+- contract drift is reduced;
+- backend and frontend synchronization becomes easier;
+- the contract becomes a reviewable artifact instead of a side effect of the implementation.
 
 ### Negative
 
-- любое API-изменение требует дополнительного шага;
-- нужна дисциплина по versioning и примерам.
+- every API change adds an explicit extra step;
+- versioning and example maintenance require discipline.
 
 ### Neutral
 
-- не все внутренние вызовы обязаны быть HTTP, но контрактность сохраняется.
+- not every internal call needs to be HTTP, but contract ownership still applies.
 
 ## Alternatives considered
 
-- code-first без явного contract governance;
-- неверсионированные API;
-- версионирование только при больших релизах.
+- code-first development with no explicit contract governance;
+- unversioned APIs;
+- versioning only during major releases.
 
 ## Follow-up work
 
-- [ ] определить naming conventions для endpoint и event types
-- [ ] зафиксировать error envelope
-- [ ] описать правила pagination, filtering и sorting
+- [ ] define naming conventions for endpoints and event types
+- [ ] lock down the error envelope
+- [ ] document pagination, filtering, and sorting rules

@@ -1,22 +1,24 @@
 # Product ADR
 
-Этот раздел содержит reference решения, которые описывают предметную область и продуктовую модель для derived projects.
+This section contains reference decisions that describe the domain model and
+product semantics for derived projects.
 
-Это не означает, что текущий репозиторий уже реализует весь этот продуктовый
-объём. Эти ADR нужны как пример того, как template фиксирует domain decisions,
-когда конкретный проект начинает расти поверх baseline.
+It does not mean the current repository already implements the full product
+scope. These ADRs exist as examples of how the template records domain
+decisions once a real project starts growing on top of the baseline.
 
-Обязательная точка входа перед чтением отдельных ADR: [../INDEX.md](../INDEX.md).
+Mandatory entrypoint before reading individual ADRs:
+[ADR Reading Map](/adr/INDEX).
 
-Используем этот раздел для решений про:
+Use this section for decisions about:
 
-- жизненный цикл сущностей домена;
-- trust model и verification rules;
+- domain entity lifecycle;
+- trust model and verification rules;
 - domain-specific storage model;
-- quarantine, override, promotion и другие бизнес-значимые состояния;
-- внешние экосистемы, адаптеры и каноническую модель идентичности.
+- quarantine, override, promotion, and other business-significant states;
+- external ecosystems, adapters, and the canonical identity model.
 
-Текущий набор accepted ADR:
+Current accepted ADRs:
 
 - [1000-artifact-immutability-and-promotion-model.md](./1000-artifact-immutability-and-promotion-model.md)
 - [1001-trust-and-verification-policy.md](./1001-trust-and-verification-policy.md)

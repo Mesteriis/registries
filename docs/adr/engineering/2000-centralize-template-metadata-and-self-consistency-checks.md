@@ -14,57 +14,60 @@
 
 ## Context
 
-Максимально opinionated template быстро деградирует, если внутри него появляются независимые hardcoded assumptions про owner, decider, golden path commands и pipeline semantics. В этом случае:
+A highly opinionated template quickly degrades if separate hardcoded assumptions
+about owner, decider, golden-path commands, and pipeline semantics start to
+appear across the repository. When that happens:
 
-- скрипты начинают расходиться по ownership и decider constants;
-- Makefile, pre-commit и CI больше не описывают один и тот же engineering baseline;
-- dual-CI становится формально включённой, но фактически несимметричной;
-- `specs/` может остаться набором placeholder-директорий без канонических примеров контрактов.
+- scripts drift in ownership and decider constants;
+- the Makefile, pre-commit hooks, and CI stop describing the same engineering baseline;
+- dual-CI becomes nominally enabled but effectively asymmetric;
+- `specs/` can degrade into placeholder directories with no canonical contract examples.
 
-Для golden-master template нужны не только checks на код и структуру, но и checks на согласованность самого шаблона.
+A golden-master template needs checks not only for code and structure, but also
+for the internal consistency of the template itself.
 
 ## Decision
 
-Шаблон использует два обязательных механизма:
+The template uses two mandatory mechanisms:
 
-- `template.meta.toml` как единый источник script-level metadata для owner, ADR decider и типа шаблона;
-- self-consistency checks, которые валидируют согласованность Makefile, hooks, CI, docker targets и contract scaffold.
+- `template.meta.toml` as the single source of script-level metadata for the owner, ADR decider, and template type;
+- self-consistency checks that validate alignment across the Makefile, hooks, CI, Docker targets, and contract scaffold.
 
-Правила:
+Rules:
 
-- ownership и ADR decider не должны быть захардкожены в validation scripts;
-- `Makefile`, pre-commit, GitHub CI и Gitea CI должны оставаться семантически согласованными;
-- dual-CI проверяется отдельным symmetry check, а не вручную;
-- placeholder-only contract directories не считаются допустимым состоянием максимального шаблона;
-- engineering baseline самого шаблона фиксируется как ADR-worthy решение, а не как случайный набор скриптов.
+- ownership and ADR decider must not be hardcoded inside validation scripts;
+- the `Makefile`, pre-commit, GitHub CI, and Gitea CI must remain semantically aligned;
+- dual-CI is validated by a dedicated symmetry check, not by manual inspection;
+- placeholder-only contract directories are not an acceptable state for the maximum template;
+- the engineering baseline of the template itself is treated as an ADR-worthy decision, not as an accidental pile of scripts.
 
 ## Consequences
 
 ### Positive
 
-- ownership assumptions централизуются и не размазываются по скриптам;
-- шаблон становится self-validating не только по коду, но и по собственной инженерной форме;
-- легче сопровождать dual-CI и golden-master workflow без скрытого drift;
-- derived templates получают более устойчивый исходный baseline.
+- ownership assumptions become centralized instead of scattered through scripts;
+- the template becomes self-validating not only for code, but also for its own engineering shape;
+- dual-CI and the golden-master workflow are easier to maintain without hidden drift;
+- derived templates get a more stable starting baseline.
 
 ### Negative
 
-- растёт количество meta-validation checks;
-- изменение template governance требует обновлять несколько связанных артефактов.
+- the number of meta-validation checks increases;
+- changing template governance requires updates across several related artifacts.
 
 ### Neutral
 
-- `template.meta.toml` не является runtime configuration или feature-flag system; это repository metadata для инженерных инструментов шаблона.
+- `template.meta.toml` is not runtime configuration or a feature-flag system; it is repository metadata for the template engineering tooling.
 
 ## Alternatives considered
 
-- держать owner и ADR decider как hardcoded constants внутри скриптов;
-- считать Makefile, hooks и CI независимыми слоями без symmetry validation;
-- разрешить placeholder-only `specs/` scaffold без канонических contract examples.
+- keep owner and ADR decider as hardcoded constants in scripts;
+- treat the Makefile, hooks, and CI as independent layers with no symmetry validation;
+- allow placeholder-only `specs/` scaffolding with no canonical contract examples.
 
 ## Follow-up work
 
-- [x] ввести `template.meta.toml`
-- [x] добавить template consistency check
-- [x] добавить CI symmetry check
-- [ ] при появлении новых engineering-level governance decisions продолжать фиксировать их в `docs/adr/engineering/`
+- [x] introduce `template.meta.toml`
+- [x] add a template consistency check
+- [x] add a CI symmetry check
+- [ ] continue recording new engineering-level governance decisions under `docs/adr/engineering/`

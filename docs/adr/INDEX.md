@@ -6,7 +6,7 @@ domain model.
 
 Read in this order:
 
-1. [README.md](../../README.md)
+1. [Template Overview](/overview)
 2. this `INDEX.md`
 3. the foundation ADRs
 4. the ADRs for the change area you are touching

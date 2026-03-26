@@ -15,62 +15,67 @@
 
 ## Context
 
-Шаблонный репозиторий должен быть пригоден как для hosted GitHub, так и для self-hosted Gitea installations. Если baseline качества существует только для одного CI окружения, шаблон перестаёт быть переносимым и начинает требовать ручной адаптации сразу после создания проекта.
+The template repository must work both for hosted GitHub and for self-hosted
+Gitea installations. If the quality baseline exists only for one forge or one
+CI environment, the template stops being portable and requires manual
+adaptation immediately after project creation.
 
-Дополнительно выбран режим `Dokploy Method 2`, где платформа отслеживает git-репозиторий сама, а CI pipeline отвечает в первую очередь за quality gates, image build validation и security checks, а не за imperative deploy.
+The repository also assumes `Dokploy Method 2`, where the platform tracks the
+git repository itself, and the CI pipeline focuses on quality gates, image
+build validation, and security checks rather than imperative deployment.
 
 ## Decision
 
-Шаблон поставляется с двумя совместимыми CI definitions:
+The template ships with two compatible CI definitions:
 
-- `.github/workflows/ci.yml` для GitHub Actions;
-- `.gitea/workflows/ci.yml` для self-hosted Gitea Actions.
+- `.github/workflows/ci.yml` for GitHub Actions;
+- `.gitea/workflows/ci.yml` for self-hosted Gitea Actions.
 
-Общие правила:
+Shared rules:
 
-- quality gates в обоих CI должны быть эквивалентны по смыслу;
-- pipeline ограничивается максимум двумя параллельными test jobs, после которых может идти общий security/image job;
-- backend и frontend проверяются отдельно;
-- security/image job выполняет container linting, shell linting, filesystem scanning и smoke build Docker targets;
-- Docker images всегда тегируются тремя тегами: `latest`, branch name и commit SHA;
-- при `Dokploy Method 2` deploy шаг из CI не обязателен и не является частью базового pipeline.
+- quality gates in both CI systems must be equivalent in meaning;
+- the pipeline is limited to at most two parallel test jobs before a shared security or image job;
+- backend and frontend are checked separately;
+- the security or image job runs container linting, shell linting, filesystem scanning, and smoke Docker builds;
+- Docker images are always tagged with `latest`, branch name, and commit SHA;
+- under `Dokploy Method 2`, a deployment step from CI is optional and not part of the baseline pipeline.
 
 Gitea-specific baseline:
 
-- workflow использует runner labels `python`, `node` и `main`;
-- `main` runner выполняет Docker/security шаги, а `python` и `node` отвечают за language-specific checks.
+- the workflow uses runner labels `python`, `node`, and `main`;
+- the `main` runner performs Docker and security steps, while `python` and `node` handle language-specific checks.
 
 GitHub-specific baseline:
 
-- workflow использует hosted runners и явную установку Python, `uv`, Node/pnpm и security tooling;
-- логика quality gates остаётся эквивалентной Gitea pipeline.
+- the workflow uses hosted runners and explicit setup for Python, `uv`, Node/pnpm, and security tooling;
+- the quality-gate logic stays equivalent to the Gitea pipeline.
 
 ## Consequences
 
 ### Positive
 
-- шаблон остаётся переносимым между GitHub и self-hosted Gitea;
-- quality gates одинаково работают до выбора конкретной forge platform;
-- безопасность Dockerfile и shell entrypoints проверяется в базовом pipeline.
+- the template remains portable across GitHub and self-hosted Gitea;
+- quality gates work consistently before a team chooses one forge platform;
+- Dockerfile and shell-entrypoint hygiene are enforced in the baseline pipeline.
 
 ### Negative
 
-- нужно поддерживать две workflow definitions;
-- drift между CI конфигурациями становится отдельным риском и требует ревью.
+- two workflow definitions must be maintained;
+- drift between CI configurations becomes a separate review risk.
 
 ### Neutral
 
-- конкретная deploy automation может быть добавлена позже отдельным ADR без изменения базового CI contract.
+- concrete deployment automation can be added later in a separate ADR without changing the baseline CI contract.
 
 ## Alternatives considered
 
-- поддерживать только GitHub Actions;
-- поддерживать только Gitea Actions;
-- оставить адаптацию CI на каждый новый проект после генерации из шаблона.
+- supporting only GitHub Actions;
+- supporting only Gitea Actions;
+- leaving CI adaptation to every generated project.
 
 ## Follow-up work
 
-- [x] добавить GitHub workflow
-- [x] добавить Gitea workflow
-- [x] зафиксировать `Dokploy Method 2` как baseline без CI-driven deploy
-- [ ] при необходимости добавить отдельные deploy workflows для environment-specific targets
+- [x] add the GitHub workflow
+- [x] add the Gitea workflow
+- [x] fix `Dokploy Method 2` as the baseline with no CI-driven deploy
+- [ ] add separate deployment workflows for environment-specific targets if needed

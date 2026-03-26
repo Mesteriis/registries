@@ -58,6 +58,7 @@ node_modules/
 .yarn/
 .turbo/
 .vite/
+.vitepress/cache/
 vite.svg
 *.tsbuildinfo
 

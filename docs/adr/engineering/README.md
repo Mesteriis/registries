@@ -1,17 +1,19 @@
 # Engineering ADR
 
-Этот раздел содержит решения, которые описывают инженерный baseline шаблона, repository governance и self-validation механизмы.
+This section contains decisions that describe the template engineering
+baseline, repository governance, and self-validation mechanisms.
 
-Обязательная точка входа перед чтением отдельных ADR: [../INDEX.md](../INDEX.md).
+Mandatory entrypoint before reading individual ADRs:
+[ADR Reading Map](/adr/INDEX).
 
-Используем этот раздел для решений про:
+Use this section for decisions about:
 
 - template metadata;
 - self-consistency checks;
 - CI symmetry;
-- golden-master engineering baseline;
-- правила эволюции самого шаблона.
+- the golden-master engineering baseline;
+- how the template itself evolves.
 
-Текущий набор accepted ADR:
+Current accepted ADRs:
 
 - [2000-centralize-template-metadata-and-self-consistency-checks.md](./2000-centralize-template-metadata-and-self-consistency-checks.md)

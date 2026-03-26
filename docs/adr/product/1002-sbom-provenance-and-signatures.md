@@ -14,45 +14,49 @@
 
 ## Context
 
-Для зрелой модели доверия недостаточно проверять только уязвимости или только источник загрузки. Нужны независимые сигналы состава, происхождения и подлинности артефакта.
+A mature trust model cannot rely only on vulnerability scanning or only on the
+upload source. It needs independent signals about composition, provenance, and
+authenticity.
 
 ## Decision
 
-SBOM, provenance и signatures рассматриваются как first-class inputs для trust evaluation.
+SBOMs, provenance, and signatures are treated as first-class inputs for trust
+evaluation.
 
-Отсутствие сигнала:
+When one of these signals is missing, the policy may:
 
-- либо блокирует promotion;
-- либо понижает trust level;
-- либо требует manual override;
-- определяется policy tier и контекстом экосистемы.
+- block promotion;
+- reduce the trust level;
+- require a manual override.
+
+The exact outcome depends on the policy tier and the ecosystem context.
 
 ## Consequences
 
 ### Positive
 
-- trust decision становится глубже и качественнее;
-- появляется база для compliance и explainability;
-- можно вводить policy tiers по уровню зрелости verification.
+- trust decisions become deeper and higher quality;
+- the platform gains a stronger foundation for compliance and explainability;
+- policy tiers can be introduced based on verification maturity.
 
 ### Negative
 
-- ingestion pipeline усложняется;
-- возрастают требования к metadata storage;
-- зрелость verification signals зависит от экосистемы.
+- the ingestion pipeline becomes more complex;
+- metadata storage requirements increase;
+- verification-signal maturity depends on the surrounding ecosystem.
 
 ### Neutral
 
-- разные экосистемы могут предъявлять разные baseline requirements.
+- different ecosystems may require different baseline verification inputs.
 
 ## Alternatives considered
 
-- использовать только vulnerability scanning;
-- считать SBOM и provenance необязательной дополнительной фичей;
-- проверять подписи только выборочно без общей модели.
+- rely only on vulnerability scanning;
+- treat SBOM and provenance as optional extras;
+- verify signatures only selectively with no shared model.
 
 ## Follow-up work
 
-- [ ] определить verification baseline по экосистемам
-- [ ] утвердить canonical metadata model
-- [ ] определить policy tiers
+- [ ] define verification baselines per ecosystem
+- [ ] approve the canonical metadata model
+- [ ] define policy tiers

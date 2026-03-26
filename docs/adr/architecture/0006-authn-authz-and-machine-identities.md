@@ -15,43 +15,47 @@
 
 ## Context
 
-Система взаимодействует не только с людьми, но и с automation, внутренними сервисами и внешними агентами. Без явной модели identity и authorization критичные операции быстро начинают защищаться несогласованно.
+The system interacts not only with humans but also with automation, internal
+services, and external agents. Without an explicit identity and authorization
+model, critical operations quickly end up protected inconsistently.
 
 ## Decision
 
-Система различает:
+The system distinguishes between:
 
 - human identities;
 - machine identities;
 - internal service identities.
 
-Авторизация строится на policy-based модели, а не на хаотичном наборе role checks. Чувствительные операции должны явно проверять actor type, scope, policy context и auditability.
+Authorization follows a policy-based model instead of an ad-hoc collection of
+role checks. Sensitive operations must explicitly evaluate actor type, scope,
+policy context, and auditability.
 
 ## Consequences
 
 ### Positive
 
-- повышается безопасность и прозрачность операций;
-- проще автоматизировать CI/CD и service-to-service flows;
-- опасные действия легче ограничивать и аудитить.
+- security and operational transparency improve;
+- CI/CD and service-to-service flows become easier to automate;
+- dangerous actions become easier to constrain and audit.
 
 ### Negative
 
-- возрастает стартовая сложность;
-- нужен lifecycle management для credential и token.
+- initial complexity increases;
+- credential and token lifecycle management becomes necessary.
 
 ### Neutral
 
-- конкретный identity provider может быть выбран позже отдельным ADR.
+- a specific identity provider may be chosen later in a separate ADR.
 
 ## Alternatives considered
 
 - shared admin tokens;
-- role checks без policy model;
-- отсутствие разделения между human и machine actors.
+- role checks with no policy model;
+- no separation between human and machine actors.
 
 ## Follow-up work
 
-- [ ] описать actor model
-- [ ] определить matrix чувствительных операций
-- [ ] зафиксировать credential lifecycle
+- [ ] describe the actor model
+- [ ] define a matrix of sensitive operations
+- [ ] lock down the credential lifecycle

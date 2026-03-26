@@ -16,75 +16,68 @@
 
 ## Context
 
-API-first сам по себе недостаточен, если backend implementation, frontend client
-и typed frontend models могут молча drift-ить от `specs/`.
+API-first is not enough if backend implementation, frontend clients, and typed
+frontend models can silently drift away from `specs/`.
 
-Для strict template это особенно опасно:
+For a strict template this is especially dangerous:
 
-- frontend начинает опираться на путь или shape, которого уже нет на backend;
-- backend response model меняется, а frontend client/types остаются старыми;
-- OpenAPI остаётся декларацией намерения, но не проверяемым source of truth;
-- drift обнаруживается слишком поздно, уже в runtime или через ручную проверку.
+- the frontend starts depending on a path or shape that no longer exists on the backend;
+- a backend response model changes while frontend clients or types stay stale;
+- OpenAPI remains a statement of intent rather than a validated source of truth;
+- drift is discovered too late, at runtime or through manual inspection.
 
-Требование “100% соответствия” нельзя честно обеспечить generic lint для любого
-произвольного ручного кода. Но template может и должен enforce-ить максимально
-жёсткую parity policy для своих template-owned HTTP surfaces, если expected
-surface автоматически выводится из canonical OpenAPI spec.
+A claim of “100% parity” cannot honestly be proven for arbitrary handwritten
+code through generic linting. But the template can and must enforce the
+strongest possible parity policy for template-owned HTTP surfaces when the
+expected surface is derived automatically from the canonical OpenAPI spec.
 
 ## Decision
 
-Принимается machine-validated HTTP contract parity policy:
+The repository adopts a machine-validated HTTP contract parity policy:
 
-- `specs/` остаётся source of truth для публичного HTTP contract;
-- expected parity map выводится автоматически из `specs/openapi/platform.openapi.yaml`,
-  а не хранится как отдельный ручной manifest;
-- template-owned backend routes и response contracts должны быть явно привязаны к
-  canonical spec path и shape;
-- template-owned frontend client paths и typed models должны быть явно привязаны
-  к тому же canonical contract;
-- для template-owned frontend HTTP slices preferred baseline — generated client/types
-  from OpenAPI plus thin entity-layer wrappers;
-- parity должна проверяться автоматикой на уровне repository checks и local hooks,
-  а не только unit/integration tests;
-- для каждого template-owned HTTP reference slice должен существовать explicit
-  parity check, который валит репозиторий при drift.
+- `specs/` remains the source of truth for the public HTTP contract;
+- the expected parity map is derived automatically from `specs/openapi/platform.openapi.yaml`, not stored as a separate manual manifest;
+- template-owned backend routes and response contracts must stay explicitly aligned with canonical spec paths and shapes;
+- template-owned frontend client paths and typed models must stay explicitly aligned with the same contract;
+- for template-owned frontend HTTP slices, the preferred baseline is generated client and type code from OpenAPI plus thin entity-layer wrappers;
+- parity must be checked automatically through repository checks and local hooks, not only through unit or integration tests;
+- each template-owned HTTP reference slice must have an explicit parity check that fails the repository on drift.
 
-В текущем baseline это применяется к canonical `system health` slice:
+In the current baseline this applies to the canonical `system health` slice:
 
-- OpenAPI contract в `specs/openapi/platform.openapi.yaml`;
+- OpenAPI contract in `specs/openapi/platform.openapi.yaml`;
 - backend runtime OpenAPI from `FastAPI.app.openapi()` and contracts under `src/backend/apps/system/`;
 - generated frontend API under `src/frontend/shared/api/generated/`;
 - thin entity-layer wrappers under `src/frontend/entities/system/`;
-- root-level contract tests in `tests/contract/`.
+- root-level contract tests under `tests/contract/`.
 
 ## Consequences
 
 ### Positive
 
-- drift между spec, backend и frontend ловится до runtime;
-- `specs/` перестаёт быть purely aspirational document;
-- parity policy не требует отдельного ручного списка expected paths и schema names;
-- manual clients остаются допустимыми только при machine-enforced parity;
-- template становится safer baseline для derived projects.
+- drift between spec, backend, and frontend is caught before runtime;
+- `specs/` stops being a purely aspirational document;
+- the parity policy no longer needs a separate manual list of expected paths and schema names;
+- handwritten clients remain acceptable only when parity is still machine-enforced;
+- the template becomes a safer baseline for derived projects.
 
 ### Negative
 
-- generic “prove 100% semantic equivalence for all code” по-прежнему невозможен;
-- новые HTTP slices должны получать такую же parity automation, иначе policy будет неполной.
+- generic proof of semantic equivalence for all code remains impossible;
+- every new HTTP slice must get the same parity automation or the policy becomes incomplete.
 
 ### Neutral
 
-- generated clients считаются preferred baseline, но не отменяют requirement на
-  source-of-truth spec, thin wrappers и parity validation;
-- contract tests и lint-like parity checks дополняют друг друга, а не заменяют.
+- generated clients are the preferred baseline, but they do not replace the requirement for a source-of-truth spec, thin wrappers, and parity validation;
+- contract tests and lint-like parity checks complement each other rather than replacing each other.
 
 ## Alternatives considered
 
-- полагаться только на unit/integration/e2e tests;
-- доверять code review и manual discipline без machine enforcement;
-- делать generic AST-level prover для любого backend/frontend contract surface.
+- relying only on unit, integration, or e2e tests;
+- relying on code review and manual discipline with no machine enforcement;
+- trying to build a generic AST-level prover for any backend/frontend contract surface.
 
 ## Follow-up work
 
-- [ ] расширять spec-derived parity coverage при появлении новых template-owned HTTP slices
-- [ ] определить, какие derived projects остаются на thin wrappers over generated clients, а где нужен полноценный generated SDK layer
+- [ ] expand spec-derived parity coverage as new template-owned HTTP slices appear
+- [ ] define where derived projects stay on thin wrappers over generated clients and where a fuller generated SDK layer is needed

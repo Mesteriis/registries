@@ -15,45 +15,54 @@
 
 ## Context
 
-Система обслуживает разные типы нагрузки: API requests, orchestration, фоновые вычисления, периодические reconciliation jobs и integration workloads. Если всё исполняется в одном runtime-процессе, тяжёлые задачи начинают влиять на latency и stability control plane.
+The system serves different kinds of load: API requests, orchestration,
+background computation, periodic reconciliation jobs, and integration
+workloads. If everything runs in one runtime process, heavy work starts to harm
+control-plane latency and stability.
 
 ## Decision
 
-Runtime разделяется как минимум на:
+The runtime is split into at least:
 
-- control plane/API;
+- the control plane or API;
 - background workers;
 - optional scheduled or reconciliation workers.
 
-Control plane не должен зависеть по latency и ресурсам от тяжёлых background tasks. Для локальной разработки допускается collapsed topology, но production model остаётся разделённой.
+The control plane must not depend on heavy background tasks for latency or
+resources. Local development may use a collapsed topology, but the production
+model remains separated.
 
-Schema migrations для primary relational database не выполняются как часть FastAPI app bootstrap. Они запускаются либо как отдельный административный или deployment step, либо как явный pre-start шаг backend container entrypoint до старта API-процесса.
+Schema migrations for the primary relational database are not executed as part
+of FastAPI app bootstrap, import-time initialization, or request handling. They
+run either as a separate administrative or deployment step, or as an explicit
+pre-start step in the backend container entrypoint before the API process
+starts.
 
 ## Consequences
 
 ### Positive
 
-- повышается стабильность API;
-- тяжёлые обработчики можно масштабировать независимо;
-- уменьшается resource contention между разными типами нагрузки.
+- API stability improves;
+- heavy handlers can be scaled independently;
+- resource contention between load types is reduced.
 
 ### Negative
 
-- возрастает операционная сложность;
-- нужны conventions для coordination, deployment и health management.
+- operational complexity increases;
+- health, coordination, and deployment conventions are required.
 
 ### Neutral
 
-- физическая реализация может отличаться между окружениями при сохранении логической модели.
+- physical implementation may differ between environments while keeping the same logical model.
 
 ## Alternatives considered
 
-- один процесс для всего;
-- только cron/batch workers;
-- отложить разделение topology до появления проблем.
+- one process for everything;
+- cron-only or batch-only workers;
+- delaying topology separation until problems appear.
 
 ## Follow-up work
 
-- [ ] описать runtime roles и их обязанности
-- [ ] определить health, readiness и scaling semantics
-- [ ] зафиксировать deployment conventions для окружений
+- [ ] describe runtime roles and responsibilities
+- [ ] define health, readiness, and scaling semantics
+- [ ] document deployment conventions for environments

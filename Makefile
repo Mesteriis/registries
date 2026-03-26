@@ -3,13 +3,13 @@ BACKEND_PYTHON := uv run --project src/backend python
 
 .PHONY: help \
 	init-env compose-up compose-down \
-	backend-sync frontend-install install-hooks bootstrap \
+	backend-sync frontend-install docs-install install-hooks bootstrap \
 	check check-core check-environment doctor frontend-architecture contract-parity frontend-api-generate \
 	backend-fix frontend-fix fix \
 	backend-lint backend-observability frontend-lint repo-lint lint lint-core \
 	backend-types frontend-types \
 	backend-test frontend-test contract-test e2e-test test test-core \
-	frontend-build build build-core \
+	frontend-build docs-build docs-dev build build-core \
 	backend-security repo-security security \
 	docker-build security-core ci
 
@@ -25,6 +25,9 @@ backend-sync: ## Sync backend dependencies
 frontend-install: ## Install frontend dependencies
 	python3 scripts/run_frontend_install.py
 
+docs-install: ## Install GitHub Pages documentation dependencies
+	python3 scripts/run_docs_install.py
+
 install-hooks: ## Install local pre-commit and pre-push hooks
 	cd src/backend && uv run pre-commit install --config ../../.pre-commit-config.yaml --install-hooks --hook-type pre-commit --hook-type pre-push
 
@@ -33,6 +36,8 @@ bootstrap: init-env ## Sync dependencies and install repository hooks
 	python3 scripts/run_backend_sync.py
 	@echo "==> Installing frontend dependencies"
 	python3 scripts/run_frontend_install.py
+	@echo "==> Installing docs dependencies"
+	python3 scripts/run_docs_install.py
 	@echo "==> Installing git hooks"
 	cd src/backend && uv run pre-commit install --config ../../.pre-commit-config.yaml --install-hooks --hook-type pre-commit --hook-type pre-push
 
@@ -156,6 +161,12 @@ test: ## Run full test pipeline
 frontend-build: ## Build frontend artifacts
 	python3 scripts/run_frontend_build.py
 
+docs-build: docs-install ## Build the GitHub Pages documentation site
+	python3 scripts/run_docs_build.py
+
+docs-dev: docs-install ## Run the GitHub Pages documentation site locally
+	cd docs && pnpm dev --host 0.0.0.0
+
 build-core: ## Run the shared build stage for local and CI workflows
 	@echo "==> Running backend type checks"
 	@$(MAKE) backend-types
@@ -163,6 +174,8 @@ build-core: ## Run the shared build stage for local and CI workflows
 	@$(MAKE) frontend-types
 	@echo "==> Building frontend"
 	@$(MAKE) frontend-build
+	@echo "==> Building docs"
+	@$(MAKE) docs-build
 
 build: ## Run build-oriented checks
 	@$(MAKE) build-core

@@ -15,47 +15,50 @@
 
 ## Context
 
-Внутренние процессы платформы неоднородны по latency и часто естественно асинхронны. Синхронная оркестрация всех шагов через один request lifecycle усиливает связанность и делает систему менее отказоустойчивой.
+Internal platform processes vary in latency and are often naturally
+asynchronous. Orchestrating every step synchronously inside a request lifecycle
+increases coupling and makes the system less resilient.
 
 ## Decision
 
-Для внутренних workflow используется event-driven модель.
+Internal workflows use an event-driven model.
 
-Компоненты:
+Components:
 
-- публикуют доменные события;
-- подписываются на релевантные события;
-- обрабатывают их асинхронно и идемпотентно;
-- сохраняют correlation и causation identifiers.
+- publish domain events;
+- subscribe to relevant events;
+- process them asynchronously and idempotently;
+- preserve correlation and causation identifiers.
 
-Синхронные команды допустимы только для коротких операций, где нужна немедленная обратная связь.
+Synchronous commands remain acceptable only for short operations that require
+immediate feedback.
 
 ## Consequences
 
 ### Positive
 
-- тяжёлые процессы лучше масштабируются;
-- проще расширять pipeline новыми стадиями;
-- снижается связанность между компонентами.
+- heavy processes scale more cleanly;
+- pipelines are easier to extend with new stages;
+- coupling between components is reduced.
 
 ### Negative
 
-- отладка end-to-end становится сложнее;
-- нужны idempotency, replay, tracing и schema governance;
-- появляется eventual consistency.
+- end-to-end debugging becomes harder;
+- idempotency, replay, tracing, and schema governance are required;
+- eventual consistency appears.
 
 ### Neutral
 
-- event-driven модель не запрещает точечные synchronous interactions.
+- the event-driven model does not forbid small synchronous interactions.
 
 ## Alternatives considered
 
-- полностью синхронный orchestration layer;
+- a fully synchronous orchestration layer;
 - cron-driven batch processing;
-- tight coupling через direct service calls.
+- tight coupling through direct service calls.
 
 ## Follow-up work
 
-- [ ] выбрать event bus
-- [ ] определить стандартный event envelope
-- [ ] зафиксировать correlation_id и causation_id
+- [ ] choose an event bus
+- [ ] define the standard event envelope
+- [ ] lock down `correlation_id` and `causation_id`

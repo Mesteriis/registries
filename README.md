@@ -52,6 +52,10 @@ What is intentionally still baseline/reference:
 
 ## Quick Start
 
+Public docs site:
+
+- `https://mesteriis.github.io/fullstack-template/`
+
 1. Copy the shared env file:
 
    ```bash
@@ -132,6 +136,8 @@ What is intentionally still baseline/reference:
 - `make contract-test`: run cross-app contract checks from `tests/contract/`
 - `make e2e-test`: run root-level smoke scenarios from `tests/e2e/`
 - `make build`: run type checks and frontend build
+- `make docs-build`: build the GitHub Pages documentation portal
+- `make docs-dev`: run the GitHub Pages documentation portal locally
 - `make compose-up`: start the root Docker ensemble
 - `make compose-down`: stop the root Docker ensemble
 - `make ci`: run the full golden-master local pipeline
@@ -212,7 +218,7 @@ not as the beginning of a product dashboard.
 ## What To Read First
 
 1. This `README.md`
-2. [docs/getting-started.md](./docs/getting-started.md)
+2. [docs/getting-started.md](./docs/getting-started.md) or the public docs portal at `https://mesteriis.github.io/fullstack-template/`
 3. [CONTRIBUTING.md](./CONTRIBUTING.md)
 4. [docs/adr/INDEX.md](./docs/adr/INDEX.md)
 

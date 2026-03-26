@@ -15,47 +15,50 @@
 
 ## Context
 
-Часть артефактов нельзя просто "не промоутить". Их нужно удерживать от потребления, передавать на ручной разбор, помечать как подозрительные и сохранять forensic trail.
+Some artifacts cannot simply remain “not promoted.” They must be held back from
+consumption, escalated for manual review, marked as suspicious, and preserved
+with a forensic trail.
 
 ## Decision
 
-Вводится quarantine как отдельное состояние и отдельная operational model.
+Quarantine is introduced as an explicit state with its own operational model.
 
-Артефакт переводится в quarantine, если:
+An artifact is moved into quarantine when:
 
-- обнаружен high-risk verdict;
-- нарушена trust policy;
-- источник признан компрометированным;
-- есть признаки tampering;
-- security operator выполнил ручную изоляцию.
+- a high-risk verdict is produced;
+- trust policy is violated;
+- the source is considered compromised;
+- there are signs of tampering;
+- a security operator performs a manual isolation step.
 
-Security gates и quarantine model применяются явно, а не через неформальные operator conventions.
+Security gates and the quarantine model are applied explicitly rather than
+through informal operator conventions.
 
 ## Consequences
 
 ### Positive
 
-- появляется понятная operational модель для suspicious artifacts;
-- легче отделить "не проверено" от "опасно";
-- улучшается incident response.
+- suspicious artifacts get a clear operational model;
+- “not yet verified” and “dangerous” become distinct states;
+- incident response becomes stronger.
 
 ### Negative
 
-- потребуется UI/API для расследования и override;
-- нужны правила выхода из quarantine.
+- UI or API support is needed for investigation and override flows;
+- rules are needed for leaving quarantine.
 
 ### Neutral
 
-- quarantine может быть как автоматической, так и ручной.
+- quarantine may be triggered automatically or manually.
 
 ## Alternatives considered
 
-- только soft-fail без quarantine;
-- просто deny без отдельного состояния;
-- удаление подозрительных артефактов из системы.
+- soft-fail only with no quarantine;
+- simple deny with no separate state;
+- deleting suspicious artifacts from the system.
 
 ## Follow-up work
 
-- [ ] определить quarantine reasons taxonomy
-- [ ] описать release and unquarantine flow
-- [ ] определить incident annotation model
+- [ ] define a taxonomy of quarantine reasons
+- [ ] describe the release and unquarantine flow
+- [ ] define the incident annotation model

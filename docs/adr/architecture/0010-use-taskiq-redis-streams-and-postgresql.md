@@ -15,55 +15,56 @@
 
 ## Context
 
-Платформе нужны:
+The platform needs:
 
-- отложенные задачи и фоновые workers для тяжёлых процессов;
-- надёжное transactional storage для metadata, policy decisions, audit и pipeline state.
+- deferred tasks and background workers for heavy processing;
+- reliable transactional storage for metadata, policy decisions, audit, and pipeline state.
 
-Высокоуровневые ADR уже фиксируют необходимость background jobs и раздельного хранения данных, но без явного выбора инфраструктурного стека это решение остаётся расплывчатым.
+High-level ADRs already require background jobs and separate storage concerns,
+but without a concrete infrastructure choice the decision stays vague.
 
 ## Decision
 
-Принимаются следующие базовые технологии:
+The baseline stack is:
 
-- `Taskiq` используется как runtime и programming model для background jobs;
-- `Redis Streams` используется как broker для доставки задач между producers и workers;
-- `PostgreSQL` используется как primary relational database для metadata, state, policy decisions, audit и другой долговременной transactional информации.
+- `Taskiq` as the runtime and programming model for background jobs;
+- `Redis Streams` as the broker between producers and workers;
+- `PostgreSQL` as the primary relational database for metadata, state, policy decisions, audit, and other durable transactional data.
 
-Границы ответственности:
+Responsibility boundaries:
 
-- broker отвечает за доставку и координацию выполнения задач;
-- `PostgreSQL` является source of truth для доменного состояния;
-- `Redis Streams` не рассматривается как долговременное хранилище бизнес-состояния.
-- schema evolution для `PostgreSQL` управляется через versioned migrations; детали фиксируются отдельным ADR про `Alembic`.
+- the broker is responsible for task delivery and execution coordination;
+- `PostgreSQL` is the source of truth for domain state;
+- `Redis Streams` is not treated as long-term business-state storage;
+- schema evolution for `PostgreSQL` is managed through versioned migrations and detailed in the dedicated Alembic ADR.
 
 ## Consequences
 
 ### Positive
 
-- появляется явный и понятный стек для async processing;
-- упрощается разработка workers и background workflows;
-- transactional state и audit остаются в зрелом SQL-хранилище.
+- the async-processing stack becomes explicit and understandable;
+- worker and workflow development becomes easier;
+- transactional state and audit stay in mature SQL storage.
 
 ### Negative
 
-- система становится зависимой сразу от двух инфраструктурных компонентов;
-- нужно внимательно проектировать идемпотентность и повторное выполнение задач;
-- требуется эксплуатационная экспертиза и по Redis Streams, и по PostgreSQL.
+- the system depends on two infrastructure components;
+- idempotency and retry behavior must be designed carefully;
+- operational expertise is needed for both Redis Streams and PostgreSQL.
 
 ### Neutral
 
-- при необходимости конкретные реализации брокера или БД могут быть заменены отдельным ADR без смены базовой архитектурной модели.
+- concrete broker or database implementations may change later through a new ADR without changing the underlying architectural model.
 
 ## Alternatives considered
 
-- выполнять фоновые задачи только через cron или batch processing;
-- использовать только PostgreSQL без отдельного job broker;
-- использовать Redis и как broker, и как primary state storage;
-- оставить технологический выбор открытым до более поздней стадии.
+- handling background jobs only through cron or batch processing;
+- using only PostgreSQL with no dedicated job broker;
+- using Redis both as broker and as primary state storage;
+- leaving the technology choice open until later.
 
 ## Follow-up work
 
-- [ ] определить naming conventions для queues и job types
-- [ ] описать retry, timeout и dead-letter policy для `Taskiq`
-- [ ] определить модель хранения job outcome и execution history в `PostgreSQL`
+- [ ] define naming conventions for queues and job types
+- [ ] document retry, timeout, and dead-letter policy for `Taskiq`
+- [ ] define how job outcome and execution history are stored in `PostgreSQL`

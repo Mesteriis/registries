@@ -14,45 +14,49 @@
 
 ## Context
 
-Платформа управляет жизненным циклом загруженных артефактов и должна поддерживать воспроизводимость, auditability и контролируемое продвижение между стадиями доверия. Если артефакты можно изменять "на месте", теряется причинно-следственная связь и затрудняется расследование.
+The platform manages the lifecycle of uploaded artifacts and must support
+reproducibility, auditability, and controlled movement across trust stages. If
+artifacts can be changed in place, causal history is lost and investigations
+become harder.
 
 ## Decision
 
-Все сохранённые артефакты считаются immutable.
+All stored artifacts are treated as immutable.
 
-Продвижение выполняется только как переход стадии или статуса, а не как перезапись существующего объекта.
+Promotion happens only as a stage or status transition, never as an overwrite
+of an existing object.
 
-Базовая stage model:
+Baseline stage model:
 
-- `incoming` - артефакт принят, но ещё не trusted;
-- `trusted` - артефакт прошёл необходимые проверки и policy;
-- `quarantine` - артефакт изолирован и недоступен для обычного потребления.
+- `incoming` for artifacts that were received but are not yet trusted;
+- `trusted` for artifacts that passed the required checks and policy;
+- `quarantine` for artifacts that are isolated and unavailable for normal consumption.
 
 ## Consequences
 
 ### Positive
 
-- выше воспроизводимость и auditability;
-- проще строить deterministic promotion pipeline;
-- легче проводить forensic analysis.
+- reproducibility and auditability improve;
+- deterministic promotion pipelines become easier to build;
+- forensic analysis becomes simpler.
 
 ### Negative
 
-- возможен рост storage usage;
-- нужны retention и garbage collection правила.
+- storage usage may grow;
+- retention and garbage-collection rules are required.
 
 ### Neutral
 
-- promotion может быть как физическим копированием, так и логическим переводом состояния.
+- promotion may be implemented either as a physical copy or as a logical state transition.
 
 ## Alternatives considered
 
-- mutable overwrite по version или tag;
-- "latest wins" без stage model;
-- ручное продвижение без формализованных стадий.
+- mutable overwrite by version or tag;
+- `latest wins` with no stage model;
+- manual promotion without explicit stages.
 
 ## Follow-up work
 
-- [ ] утвердить lifecycle states и transitions
-- [ ] определить retention policy
-- [ ] определить rollback semantics
+- [ ] define lifecycle states and transitions
+- [ ] define retention policy
+- [ ] define rollback semantics

@@ -15,47 +15,49 @@
 
 ## Context
 
-Без хорошей observability платформа быстро превращается в чёрный ящик. Для эксплуатации, безопасности и объяснимости решений нужны не только технические логи, но и полноценный audit trail для чувствительных действий.
+Without strong observability, the platform quickly turns into a black box. For
+operations, security, and explainability, the system needs not only technical
+logs but also a full audit trail for sensitive actions.
 
 ## Decision
 
-Observability и audit закладываются как базовые свойства системы.
+Observability and audit are treated as baseline system properties.
 
-Обязательные элементы:
+Mandatory elements:
 
 - structured logs;
-- trace и correlation IDs;
-- метрики по API, job execution и integration points;
-- audit records для чувствительных действий;
-- события домена и pipeline state changes.
+- trace and correlation identifiers;
+- metrics for APIs, job execution, and integration points;
+- audit records for sensitive actions;
+- domain events and pipeline state changes.
 
-Audit и observability рассматриваются как связанные, но разные плоскости.
+Audit and observability are related, but they are not the same concern.
 
 ## Consequences
 
 ### Positive
 
-- проще расследовать инциденты и регрессии;
-- легче объяснять принятые системой решения;
-- растёт сопровождаемость platform-critical flows.
+- incidents and regressions are easier to investigate;
+- system decisions become easier to explain;
+- platform-critical flows become easier to operate.
 
 ### Negative
 
-- увеличиваются требования к storage и retention;
-- нужна политика redaction и контроля чувствительных данных.
+- storage and retention requirements increase;
+- a redaction and sensitive-data control policy is required.
 
 ### Neutral
 
-- локальная разработка может использовать упрощённый стек наблюдаемости, но не иную модель событий.
+- local development may use a simplified observability stack, but not a different event model.
 
 ## Alternatives considered
 
-- только технические логи;
-- audit как отложенная задача;
-- минимальные логи без correlation.
+- technical logs only;
+- audit as a later follow-up concern;
+- minimal logs with no correlation.
 
 ## Follow-up work
 
-- [ ] определить taxonomy audit events
-- [ ] зафиксировать log schema
-- [ ] описать redaction policy
+- [ ] define the audit-event taxonomy
+- [ ] lock down the log schema
+- [ ] document the redaction policy

@@ -15,61 +15,66 @@
 
 ## Context
 
-`PostgreSQL` уже выбран как primary relational storage для metadata, state, policy decisions и audit. Без единого механизма schema evolution команда быстро приходит к drift между окружениями, ручным SQL-правкам и неявным зависимостям между кодом и схемой базы.
+`PostgreSQL` is already chosen as the primary relational storage for metadata,
+state, policy decisions, and audit. Without one schema-evolution mechanism, the
+team quickly ends up with environment drift, manual SQL changes, and hidden
+dependencies between code and database shape.
 
-Этот ADR конкретизирует, как развивается relational schema для хранилища, выбранного в ADR-0010, и как этот процесс встраивается в runtime and deployment model из ADR-0009.
+This ADR specifies how relational schema evolves for the storage chosen in
+ADR-0010 and how that process fits the runtime and deployment model from
+ADR-0009.
 
 ## Decision
 
-Schema evolution для `PostgreSQL` управляется только через `Alembic`.
+Schema evolution for `PostgreSQL` is managed only through `Alembic`.
 
-Правила:
+Rules:
 
-- миграции хранятся в репозитории и version-controlled;
-- каждое изменение relational schema идёт в том же pull request, что и изменение application code, зависящего от этой схемы;
-- автогенерация `Alembic` допустима только как стартовая точка; итоговый migration script обязан быть прочитан и отревьюен вручную;
-- destructive changes не должны смешиваться с expand-этапом, если для rollout нужна совместимость между версиями приложения;
-- ручные ad-hoc SQL-изменения в окружениях не считаются допустимым механизмом управления схемой.
+- migrations are stored in the repository and version-controlled;
+- every relational schema change is delivered in the same pull request as the application code that depends on it;
+- Alembic autogeneration is allowed only as a starting point, and the final migration script must still be read and reviewed manually;
+- destructive changes must not be mixed with the expand phase when rollout compatibility between app versions is needed;
+- manual ad-hoc SQL changes in environments are not an accepted schema-management mechanism.
 
 Runtime and deployment rules:
 
-- миграции не выполняются как побочный эффект FastAPI app bootstrap, import-time initialization или request handling;
-- миграции запускаются либо отдельным административным, CI/CD или deployment step, либо явным pre-start шагом в backend container entrypoint до старта API процесса;
-- успешное применение миграций является явной частью rollout для изменений, затрагивающих relational model;
-- rollback стратегии для схемы должны продумываться при создании миграций, а не постфактум.
+- migrations do not run as a side effect of FastAPI app bootstrap, import-time initialization, or request handling;
+- migrations run either as a separate administrative, CI/CD, or deployment step, or as an explicit pre-start step in the backend container entrypoint before the API starts;
+- successful migration execution is an explicit rollout step for changes that affect the relational model;
+- rollback strategy must be considered when a migration is created, not after the fact.
 
 Repository layout rule:
 
-- конфигурация `Alembic` и каталог `migrations/` размещаются в корне репозитория как shared infrastructure artifact для primary relational database.
+- the Alembic configuration and `migrations/` directory live at repository root as a shared infrastructure artifact for the primary relational database.
 
 ## Consequences
 
 ### Positive
 
-- схема `PostgreSQL` развивается предсказуемо и воспроизводимо;
-- уменьшается риск drift между локальной, staging и production средой;
-- deployment pipeline получает явный этап изменения схемы;
-- связь между моделью данных и кодом становится reviewable.
+- `PostgreSQL` schema evolution becomes predictable and reproducible;
+- drift between local, staging, and production environments is reduced;
+- the delivery pipeline gets an explicit schema-change step;
+- the link between data model and code becomes reviewable.
 
 ### Negative
 
-- команда обязана поддерживать дисциплину по миграциям;
-- плохо спроектированные migrations могут усложнить rollout и rollback;
-- появляется дополнительный операционный шаг в delivery pipeline.
+- migration discipline must be maintained;
+- poorly designed migrations can make rollout and rollback harder;
+- one more operational step appears in the delivery pipeline.
 
 ### Neutral
 
-- `Alembic` не определяет саму доменную модель хранения; он фиксирует способ её эволюции.
+- `Alembic` does not define the domain storage model itself; it defines how that model evolves.
 
 ## Alternatives considered
 
-- ручные SQL-скрипты без общего migration framework;
-- автоматическое изменение схемы на старте приложения;
-- использование ORM auto-create/update вместо versioned migrations;
-- откладывать формализацию schema migration process до появления сложных изменений.
+- manual SQL scripts with no shared migration framework;
+- automatic schema changes on application startup;
+- using ORM auto-create or auto-update instead of versioned migrations;
+- postponing schema governance until the database becomes more complex.
 
 ## Follow-up work
 
-- [x] создать `alembic.ini` и каталог `migrations/` в корне репозитория
-- [ ] описать naming conventions для revision и branch labels
-- [ ] определить expand-contract guideline для breaking schema changes
+- [x] add `alembic.ini` and `migrations/` at repository root
+- [ ] define naming conventions for revision and branch labels
+- [ ] document an expand-contract guideline for breaking schema changes

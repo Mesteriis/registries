@@ -1,18 +1,20 @@
 # Architecture ADR
 
-Этот раздел содержит архитектурные решения, которые задают форму системы, но не зависят от названия продукта.
+This section contains architecture decisions that define the shape of the
+system without depending on a specific product name.
 
-Обязательная точка входа перед чтением отдельных ADR: [../INDEX.md](../INDEX.md).
+Mandatory entrypoint before reading individual ADRs:
+[ADR Reading Map](/adr/INDEX).
 
-Используем этот раздел для решений про:
+Use this section for decisions about:
 
-- структуру репозитория и bounded contexts;
-- контракты и интеграции;
+- repository structure and bounded contexts;
+- contracts and integrations;
 - runtime topology;
-- тестовую стратегию;
-- безопасность, identity, policy и observability как платформенные практики.
+- testing strategy;
+- security, identity, policy, and observability as platform practices.
 
-Текущий набор accepted ADR:
+Current accepted ADRs:
 
 - [0000-record-architecture-decisions.md](./0000-record-architecture-decisions.md)
 - [0001-monorepo-and-bounded-contexts.md](./0001-monorepo-and-bounded-contexts.md)

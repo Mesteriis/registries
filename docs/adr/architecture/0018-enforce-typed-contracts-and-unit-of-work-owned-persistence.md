@@ -18,79 +18,81 @@
 
 ## Context
 
-Даже при хорошем package layout backend быстро деградирует, если слои начинают общаться сырыми `dict`, endpoints владеют транзакциями, а business flow обходит repositories или работает напрямую с `AsyncSession`. Это порождает несколько системных проблем:
+Even with a good package layout, the backend quickly degrades if layers start
+talking through raw `dict` values, endpoints own transactions, and business
+flows bypass repositories or work directly with `AsyncSession`. That creates
+several systemic problems:
 
-- границы между transport, application и persistence становятся неявными;
-- typed contracts заменяются ad-hoc словарями, которые трудно валидировать и безопасно менять;
-- services и workers начинают владеть low-level transaction lifecycle без общей policy;
-- логика чтения и записи к базе расползается по endpoints, tasks и helper-модулям;
-- асинхронные runtime paths начинают смешиваться с sync-style procedural code.
-
-Для backend template нужен единый execution model, в котором ownership typed contracts, repositories и transactions задан явно.
+- boundaries between transport, application, and persistence become implicit;
+- typed contracts are replaced with ad-hoc dictionaries that are harder to validate and evolve safely;
+- services and workers start owning low-level transaction lifecycle without one shared policy;
+- database reads and writes spread across endpoints, tasks, and helper modules;
+- async runtime paths start mixing with sync-style procedural code.
 
 ## Decision
 
-Backend использует typed, repository-driven и Unit-of-Work-owned execution model.
+The backend uses a typed, repository-driven, Unit-of-Work-owned execution
+model.
 
-Правила boundary contracts:
+Boundary-contract rules:
 
-- слои не общаются через сырые `dict`;
-- между слоями допустимы только `dataclass` или Pydantic-based structures;
-- transport payloads, application commands/results, repository inputs/outputs и query/read models должны быть typed;
-- raw `dict` допустимы только на внешней границе парсинга/сериализации или внутри низкоуровневой инфраструктуры, но не как межслойовой contract.
+- layers do not communicate through raw `dict` values;
+- only `dataclass` or Pydantic-based structures are allowed across layers;
+- transport payloads, application commands and results, repository inputs and outputs, and query/read models must be typed;
+- raw `dict` values are acceptable only at parsing or serialization edges or inside low-level infrastructure, not as cross-layer contracts.
 
-Правила runtime shape:
+Runtime-shape rules:
 
-- endpoints остаются `async-first` function handlers;
-- application services, repositories, query services, clients и другие non-endpoint components проектируются `class-first`;
-- endpoint отвечает за transport wiring и вызов service boundary, но не владеет transaction orchestration;
-- endpoint получает уже собранный service/gateway через dependency provider и не конструирует repositories, UoW или low-level clients внутри handler;
-- active backend path должен оставаться предсказуемым и typed на всём протяжении запроса.
+- endpoints stay `async-first` function handlers;
+- application services, repositories, query services, clients, and other non-endpoint components are designed `class-first`;
+- endpoints own transport wiring and service invocation, but not transaction orchestration;
+- endpoints receive already-assembled service or gateway dependencies through providers and do not build repositories, UoW objects, or low-level clients inside handlers;
+- active backend paths must stay predictable and typed across the whole request.
 
-Правила persistence:
+Persistence rules:
 
-- общение с базой идёт только через repositories или query services;
-- read path по умолчанию идёт через query services и typed immutable read models;
-- endpoints, services и workers не обращаются к `AsyncSession` или SQL напрямую в обход repository boundary;
-- транзакциями управляет `Unit of Work`;
-- `Unit of Work` является единственной точкой владения commit/rollback policy;
-- side effects, зависящие от успешного commit, должны подчиняться transaction boundary и по возможности выполняться post-commit.
+- database access goes only through repositories or query services;
+- the read path uses query services and typed immutable read models by default;
+- endpoints, services, and workers do not talk to `AsyncSession` or SQL directly outside the repository boundary;
+- transactions are owned by the `Unit of Work`;
+- the `Unit of Work` is the single owner of commit, rollback, and transaction policy;
+- side effects that depend on a successful commit should respect the transaction boundary and ideally run post-commit.
 
-Роли слоёв:
+Layer roles:
 
-- endpoint: принимает request, валидирует transport boundary, вызывает service, возвращает typed response;
-- service: оркестрирует use case, использует repositories и domain policies, но не знает о transport details;
-- repository: единственная write/read boundary к БД на write path;
-- query service: typed read boundary для read-heavy flows, если repository abstraction становится избыточной;
-- Unit of Work: владеет session lifecycle и transaction boundary.
+- endpoint: accept the request, validate the transport boundary, call the service, return a typed response;
+- service: orchestrate the use case, use repositories and domain policies, and stay unaware of transport details;
+- repository: the write boundary to the database on the write path;
+- query service: a typed read boundary for read-heavy flows when repository abstraction is not enough;
+- Unit of Work: own session lifecycle and transaction boundary.
 
 ## Consequences
 
 ### Positive
 
-- межслойовые контракты становятся проверяемыми и безопаснее переживают refactor;
-- transaction ownership централизуется и перестаёт быть случайным побочным эффектом endpoint или worker code;
-- persistence code концентрируется в repositories и query services вместо расползания по runtime paths;
-- async API layer и class-based services получают чёткое разделение ролей.
+- cross-layer contracts become testable and safer to refactor;
+- transaction ownership becomes centralized instead of leaking into endpoints or workers;
+- persistence code stays concentrated in repositories and query services rather than spreading across runtime paths;
+- the async API layer and class-based services get a clear role split.
 
 ### Negative
 
-- для простых сценариев приходится создавать typed structures и repository/UoW wiring сразу, без shortcuts;
-- write path становится строже и не допускает быстрых direct-session hacks.
+- even simple scenarios require typed structures and repository or UoW wiring instead of shortcuts;
+- the write path becomes stricter and does not allow fast direct-session hacks.
 
 ### Neutral
 
-- конкретная реализация UoW и repository internals может меняться, если сохраняются typed boundaries и ownership rules.
+- the specific UoW and repository internals may change as long as typed boundaries and ownership rules remain intact.
 
 ## Alternatives considered
 
-- разрешить слоям обмениваться сырыми `dict[str, object]`;
-- допустить прямой доступ к `AsyncSession` из endpoints и services;
-- строить backend в procedural style без class-based services и repositories;
-- считать repository pattern optional и использовать его только выборочно.
+- allowing layers to exchange raw `dict[str, object]`;
+- allowing direct `AsyncSession` access from endpoints and services;
+- building the backend in a procedural style with no class-based services or repositories;
+- treating the repository pattern as optional and using it only selectively.
 
 ## Follow-up work
 
-- [ ] добавить static checks против raw dict layer contracts на backend path
-- [ ] добавить template scaffold для `Unit of Work`, repositories и typed command/result contracts
-- [ ] усилить backend architecture validation правилами против direct session access вне repository/UoW layers
+- [ ] add static checks against raw `dict` layer contracts on the backend path
+- [ ] add a template scaffold for Unit of Work, repositories, and typed command or result contracts
+- [ ] strengthen backend architecture validation against direct session access outside repository and UoW layers

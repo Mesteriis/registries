@@ -15,51 +15,56 @@
 
 ## Context
 
-Часть операций системы потенциально тяжёлая, долгая и внешне зависимая. Выполнять всё inline внутри запроса неэффективно и хрупко: API latency растёт, а recovery становится сложнее.
+Some platform operations are heavy, slow, or depend on external systems.
+Running everything inline inside a request makes the API slower and recovery
+harder.
 
 ## Decision
 
-Тяжёлые и потенциально длительные этапы выполняются как background jobs или workflow steps.
+Heavy and potentially long-running stages run as background jobs or workflow
+steps.
 
-Базовый стек для execution path:
+Baseline execution stack:
 
-- `Taskiq` как runtime для отложенных задач;
-- `Redis Streams` как broker и транспорт доставки задач между producers и workers.
+- `Taskiq` as the runtime for deferred tasks;
+- `Redis Streams` as the broker and transport between producers and workers.
 
-Синхронно допускается только минимум:
+Only the minimum remains synchronous:
 
-- принять запрос;
-- сохранить входные данные или ссылку на них;
-- зарегистрировать старт процесса;
-- вернуть tracking reference или текущий статус.
+- accept the request;
+- store the input or a reference to it;
+- register process start;
+- return a tracking reference or current status.
 
-Оркестрация обязана поддерживать retry, idempotency, timeout и dead-letter semantics. Состояние домена и результаты выполнения, имеющие долговременную ценность, не считаются ответственностью брокера и сохраняются в основном хранилище.
+Orchestration must support retry, idempotency, timeout, and dead-letter
+semantics. Domain state and durable execution results remain in the primary
+storage and are not delegated to the broker.
 
 ## Consequences
 
 ### Positive
 
-- API остаётся отзывчивым;
-- проще повторять и изолировать упавшие шаги;
-- тяжёлые обработчики масштабируются независимо.
+- API latency stays predictable;
+- failed steps are easier to retry and isolate;
+- heavy handlers can scale independently.
 
 ### Negative
 
-- требуется явная state machine pipeline;
-- появляется eventual consistency и операционная сложность.
+- an explicit state-machine pipeline is required;
+- eventual consistency and operational complexity appear.
 
 ### Neutral
 
-- мелкие sync-checks допустимы, если они не ломают latency budget.
+- small synchronous checks remain acceptable if they do not violate the latency budget.
 
 ## Alternatives considered
 
-- полностью synchronous pipeline;
+- a fully synchronous pipeline;
 - batch-only processing;
-- один giant worker без явной workflow model.
+- one large worker with no explicit workflow model.
 
 ## Follow-up work
 
-- [ ] зафиксировать очереди, приоритеты и job classes поверх `Taskiq`
-- [ ] описать retry, backoff и dead-letter policy
-- [ ] зафиксировать idempotency strategy
+- [ ] define queues, priorities, and job classes on top of `Taskiq`
+- [ ] document retry, backoff, and dead-letter policy
+- [ ] define the idempotency strategy

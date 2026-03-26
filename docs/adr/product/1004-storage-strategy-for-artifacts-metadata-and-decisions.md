@@ -16,50 +16,52 @@
 
 ## Context
 
-Платформа работает как минимум с тремя разными классами данных:
+The platform deals with at least three different classes of data:
 
-1. бинарные артефакты;
-2. metadata и индексы;
-3. verdicts, audit records и pipeline state.
+1. binary artifacts;
+2. metadata and indexes;
+3. verdicts, audit records, and pipeline state.
 
-Эти данные отличаются по объёму, access patterns, retention и характеру обновления.
+These classes differ in size, access patterns, retention needs, and update
+behavior.
 
 ## Decision
 
-Данные разделяются логически по классам хранения:
+Data is separated logically by storage role:
 
-- blob or object storage для бинарных артефактов;
-- `PostgreSQL` как primary relational and transactional storage для metadata, state, policy decisions и audit;
-- отдельный index or search layer при необходимости.
+- blob or object storage for binary artifacts;
+- `PostgreSQL` as the primary relational and transactional storage for metadata, state, policy decisions, and audit;
+- a dedicated index or search layer when needed.
 
-Storage design не должен пытаться обслужить все три класса данных через одно универсальное хранилище по умолчанию.
-Эволюция схемы relational storage управляется через versioned migrations в `PostgreSQL`, а не через ad-hoc SQL-правки в окружениях.
+Storage design must not try to serve all three data classes through one default
+storage engine. Relational schema evolution is managed through versioned
+`PostgreSQL` migrations rather than ad-hoc SQL changes in environments.
 
 ## Consequences
 
 ### Positive
 
-- каждый класс данных хранится в подходящем storage;
-- проще масштабировать и оптимизировать system hotspots;
-- ниже риск перегрузить transactional storage несвойственной нагрузкой.
+- each data class can live in a storage layer that fits it well;
+- system hotspots become easier to scale and optimize;
+- transactional storage is less likely to be overloaded with the wrong workload.
 
 ### Negative
 
-- усложняется data consistency model;
-- нужно проектировать references, retention и cleanup flows.
+- the data consistency model becomes more complex;
+- references, retention, and cleanup flows must be designed carefully.
 
 ### Neutral
 
-- физическая реализация может отличаться между dev и production.
+- physical storage implementations may differ between dev and production.
 
 ## Alternatives considered
 
-- хранить всё в одной SQL database;
-- хранить всё в blob store;
-- строить storage strategy ad hoc по мере роста.
+- store everything in one SQL database;
+- store everything in blob storage;
+- choose storage ad hoc as the system grows.
 
 ## Follow-up work
 
-- [ ] описать data model между storage слоями
-- [ ] определить retention и cleanup strategy
-- [ ] определить artifact reference model
+- [ ] describe the data model between storage layers
+- [ ] define retention and cleanup strategy
+- [ ] define the artifact reference model

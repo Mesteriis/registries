@@ -15,53 +15,56 @@
 
 ## Context
 
-Система объединяет несколько приложений, контракты и эксплуатационные артефакты. Без явных границ репозиторий быстро превращается в плоский набор каталогов с высоким coupling и неясной ответственностью.
+The system combines multiple applications, contracts, and operational assets.
+Without explicit boundaries, the repository quickly turns into a flat directory
+set with high coupling and unclear ownership.
 
 ## Decision
 
-Используется monorepo, но с явными bounded contexts и нейтральным source root.
+The repository uses a monorepo, but with explicit bounded contexts and a
+neutral source root.
 
-Базовая структура:
+Baseline structure:
 
-- `src/` для приложений;
-- `specs/` для контрактов;
-- `tests/` для cross-app сценариев;
-- `docs/` для решений и документации;
-- `docker/`, `scripts/` для runtime и automation.
+- `src/` for applications;
+- `specs/` for contracts;
+- `tests/` for cross-app scenarios;
+- `docs/` for decisions and documentation;
+- `docker/` and `scripts/` for runtime and automation.
 
-Принципы границ:
+Boundary principles:
 
-- приложение владеет своим локальным кодом, manifest-файлами и тестами;
-- если в будущем появится repo-wide shared/generated code, для него зарезервирован корень `packages/`, а не произвольные `shared/` или `libs/`;
-- если в будущем появится repo-wide IaC или deployment configuration, для него зарезервирован корень `infra/`, а не произвольные альтернативные имена;
-- корень репозитория остаётся polyglot и не выглядит как корень одного языка или одного runtime;
-- межконтекстные зависимости проходят через явные контракты, а не через произвольные импорты.
+- each application owns its local code, manifest files, and tests;
+- if repo-wide shared or generated code appears later, the reserved root is `packages/`, not ad-hoc names such as `shared/` or `libs/`;
+- if repo-wide IaC or deployment configuration appears later, the reserved root is `infra/`, not arbitrary alternatives;
+- the repository root stays polyglot and does not look like the root of a single language or runtime;
+- cross-context dependencies go through explicit contracts rather than arbitrary imports.
 
 ## Consequences
 
 ### Positive
 
-- проще навигировать по репозиторию;
-- легче контролировать границы ответственности;
-- проще масштабировать систему под новые приложения и новые стеки.
+- repository navigation becomes easier;
+- responsibility boundaries are easier to enforce;
+- the system is easier to scale to new applications and stacks.
 
 ### Negative
 
-- нужно поддерживать дисциплину по размещению кода;
-- ранняя декомпозиция может показаться более строгой, чем ad-hoc подход.
+- placement discipline must be maintained;
+- early decomposition can feel stricter than an ad-hoc approach.
 
 ### Neutral
 
-- monorepo не означает монолитную архитектуру внутри кода.
+- a monorepo does not imply a monolithic architecture inside the code.
 
 ## Alternatives considered
 
-- плоская структура без bounded contexts;
-- несколько отдельных репозиториев;
-- структура только по технологическим слоям без доменных границ.
+- a flat structure with no bounded contexts;
+- multiple separate repositories;
+- a layout organized only by technical layers and not by domain boundaries.
 
 ## Follow-up work
 
-- [ ] зафиксировать правила межконтекстных зависимостей
-- [ ] описать ownership для основных областей
-- [ ] определить минимальный shared kernel
+- [ ] define cross-context dependency rules
+- [ ] document ownership for the main repository areas
+- [ ] define the minimal shared kernel

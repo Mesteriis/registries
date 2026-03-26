@@ -16,59 +16,63 @@
 
 ## Context
 
-Высокоуровневое решение о monorepo и bounded contexts уже принято, но без точных правил размещения файлов репозиторий быстро начинает деградировать: language-specific manifest files возвращаются в корень, тесты лежат далеко от owning code, а инфраструктурные каталоги появляются ad hoc. Дополнительно важно не смешивать два уровня решений: repo-wide layout и внутреннюю package architecture отдельных приложений.
+The high-level monorepo decision already exists, but without exact placement
+rules the repository quickly degrades: language-specific manifest files drift
+back to the root, tests end up far from the owning code, and infrastructure
+directories appear ad hoc. Repo-wide layout and internal app architecture must
+also stay separate decisions.
 
 ## Decision
 
-Фиксируется базовая layout model репозитория:
+The repository layout baseline is:
 
-- `src/backend/` для backend service roots, backend manifests и backend tests;
-- `src/frontend/` для frontend application code, frontend manifests и frontend tests;
-- `specs/` для OpenAPI, AsyncAPI и JSON Schema contracts;
-- `migrations/` для versioned migrations primary relational database;
-- `tests/contract` и `tests/e2e` только для cross-app scenarios;
-- `docker/`, `scripts/` для runtime, deployment и automation.
+- `src/backend/` for backend service roots, backend manifests, and backend tests;
+- `src/frontend/` for frontend application code, frontend manifests, and frontend tests;
+- `specs/` for OpenAPI, AsyncAPI, and JSON Schema contracts;
+- `migrations/` for versioned primary relational database migrations;
+- `tests/contract` and `tests/e2e` only for cross-app scenarios;
+- `docker/` and `scripts/` for runtime, deployment, and automation.
 
-Правила placement:
+Placement rules:
 
-- application-local manifests лежат рядом с owning app, а не в корне;
-- backend test suites живут в `src/backend/tests/` и повторяют архитектурную топологию backend service root;
-- frontend component-level tests живут рядом с frontend app root;
-- корневой `tests/` не используется для app-local test suites;
-- пустые, но обязательные каталоги могут храниться через `.gitkeep`;
-- новая директория в корне репозитория допустима только если она относится к repo-wide concerns, а не к одному приложению.
-- `packages/` не является обязательной частью текущего layout, но зарезервирован для будущего shared/generated repo-wide code именно под этим именем;
-- `infra/` не является обязательной частью текущего layout, но зарезервирован для будущего IaC и deployment-level configuration именно под этим именем;
-- внутренняя структура backend service root не определяется этим ADR и фиксируется отдельным архитектурным решением.
+- application-local manifests stay next to the owning app, not at repository root;
+- backend test suites live under `src/backend/tests/` and mirror backend service topology;
+- frontend component-level tests stay under the frontend app root;
+- root `tests/` is not used for app-local test suites;
+- empty but mandatory directories may be preserved with `.gitkeep`;
+- a new root directory is allowed only for repo-wide concerns, not for one app;
+- `packages/` is reserved for future shared or generated repo-wide code under that exact name;
+- `infra/` is reserved for future IaC and deployment-level configuration under that exact name;
+- the internal structure of a backend service root is not defined by this ADR and belongs to a separate architecture decision.
 
 ## Consequences
 
 ### Positive
 
-- layout репозитория становится предсказуемым;
-- проще валидировать структуру автоматически;
-- не создаются пустые каталоги без реального владельца и сценария использования;
-- уменьшается риск возвращения к Python-first или framework-first корню.
+- repository layout becomes predictable;
+- structure can be validated automatically;
+- empty directories without a clear owner or use case are avoided;
+- the repo is less likely to drift back to a Python-first or framework-first root.
 
 ### Negative
 
-- поддержание структуры требует дисциплины;
-- временные экспериментальные файлы нужно сразу класть в правильное место, а не в корень.
+- keeping the structure clean requires discipline;
+- temporary experiment files still need to be placed correctly rather than dropped into the root.
 
 ### Neutral
 
-- layout не определяет архитектуру модулей внутри каждого приложения, а только правила размещения на уровне репозитория.
+- layout rules do not define module architecture inside each application; they define placement rules at repository level.
 
 ## Alternatives considered
 
-- ограничиться только общим ADR про monorepo;
-- не фиксировать точную layout model и решать placement case-by-case;
-- хранить app-local tests и manifests в корне репозитория.
+- relying only on the high-level monorepo ADR;
+- not fixing a concrete layout model and deciding placement case by case;
+- storing app-local tests and manifests at repository root.
 
 ## Follow-up work
 
-- [x] поддерживать layout через автоматическую проверку в `pre-commit`
-- [x] отделить repo-wide layout rules от backend service architecture
-- [x] убрать из текущего scaffold необязательные `packages/` и `infra/`, оставив их как reserved roots
-- [ ] документировать новые repo-wide каталоги отдельным ADR при необходимости
-- [ ] синхронизировать contribution guide с layout rules
+- [x] enforce the layout through automated `pre-commit` checks
+- [x] keep repo-wide layout rules separate from backend service architecture
+- [x] remove optional `packages/` and `infra/` from the current scaffold while keeping them as reserved roots
+- [ ] document new repo-wide directories through separate ADRs when needed
+- [ ] keep the contribution guide aligned with the layout rules

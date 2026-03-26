@@ -1,27 +1,29 @@
 # ADR
 
-Каталог ADR разделён на три независимые категории:
+The ADR catalog is split into three independent categories:
 
-- [architecture/](./architecture/README.md) - архитектурные решения и инженерные принципы, которые не должны зависеть от названия продукта.
-- [product/](./product/README.md) - reference domain/product решения, которые показывают, как template фиксирует предметную область через ADR. Они не означают, что репозиторий уже является готовым продуктом.
-- [engineering/](./engineering/README.md) - template-level и repository-governance решения, которые описывают self-validation, metadata, CI symmetry и инженерный baseline.
+- [architecture/](./architecture/README.md) for architecture decisions and engineering principles that must not depend on the current product name.
+- [product/](./product/README.md) for reference domain and product decisions that show how the template captures domain rules through ADRs. They do not mean the repository is already a finished product.
+- [engineering/](./engineering/README.md) for template-level and repository-governance decisions that describe self-validation, metadata, CI symmetry, and the engineering baseline.
 
-Перед изменением кода, CI, контрактов, runtime topology или самих ADR сначала нужно прочитать [INDEX.md](./INDEX.md). Этот файл является обязательной картой чтения для людей и ИИ-агентов.
+Before changing code, CI, contracts, runtime topology, or the ADR set itself,
+read [INDEX.md](/adr/INDEX) first. It is the mandatory reading map for humans
+and AI agents.
 
-## Принципы оформления
+## Formatting Principles
 
-- один ADR = одно решение;
-- ADR фиксирует решение, а не бэкграунд обсуждения;
-- если решение меняется, создаётся новый ADR, а старый получает связь через `Supersedes` или `Superseded by`;
-- language-specific coding conventions не должны автоматически становиться ADR, если это не архитектурное решение.
+- one ADR = one decision;
+- an ADR records the decision, not the background discussion;
+- if a decision changes, create a new ADR and link the old one through `Supersedes` or `Superseded by`;
+- language-specific coding conventions should not automatically become ADRs unless they are truly architectural.
 
-## Нумерация
+## Numbering
 
-- `0000-0999` - architecture ADR;
-- `1000-1999` - product ADR;
-- `2000-2999` - engineering ADR.
+- `0000-0999` for architecture ADRs;
+- `1000-1999` for product ADRs;
+- `2000-2999` for engineering ADRs.
 
-## Статусы
+## Statuses
 
 - `Proposed`
 - `Accepted`
@@ -29,9 +31,9 @@
 - `Deprecated`
 - `Superseded`
 
-## Шаблон
+## Template
 
-Каждый ADR использует единый формат:
+Each ADR uses the same structure:
 
 - `Status`
 - `Date`
@@ -44,6 +46,8 @@
 - `Alternatives considered`
 - `Follow-up work`
 
-## Правило нейтральности
+## Neutrality Rule
 
-Архитектурные ADR должны быть написаны без привязки к бренду, имени продукта или текущему маркетинговому позиционированию. Формулировки должны описывать архитектурные принципы, ограничения, роли компонентов и эксплуатационные требования.
+Architecture ADRs must be written without binding them to a brand, a product
+name, or current marketing language. The wording must describe architectural
+principles, constraints, component roles, and operational requirements.

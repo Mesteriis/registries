@@ -17,29 +17,28 @@
 
 ## Context
 
-Даже при хорошем package layout архитектура быстро размывается, если не зафиксировано направление зависимостей. В этом случае:
+Even with a good package layout, architecture blurs quickly when dependency
+direction is not enforced. Then:
 
-- `api` начинает содержать orchestration и прямой доступ к persistence;
-- `domain` тянет framework- или ORM-специфичные зависимости;
-- один bounded context импортирует внутренности другого;
-- `core` превращается в бесконтрольный shared bucket;
-- runtime workers начинают обходить application layer и дублировать бизнес-логику.
-
-Нужно явно определить, кто может импортировать кого и какие исключения допустимы.
+- `api` starts owning orchestration and direct persistence access;
+- `domain` starts importing framework- or ORM-specific dependencies;
+- one bounded context imports the internals of another;
+- `core` turns into an uncontrolled shared bucket;
+- runtime workers bypass the application layer and duplicate business logic.
 
 ## Decision
 
-Для backend service действует unidirectional dependency model.
+The backend follows a unidirectional dependency model.
 
-На уровне top-level packages:
+At top-level package scope:
 
-- `src/backend` является service root, а не import namespace;
-- `api` может зависеть от `apps` и `core`;
-- `runtime` может зависеть от `apps` и `core`;
-- `apps` может зависеть от `core`;
-- `core` не должен зависеть от `api`, `runtime` или конкретных bounded contexts, кроме bootstrap-level wiring, которое собирает приложение.
+- `src/backend` is the service root, not an import namespace;
+- `api` may depend on `apps` and `core`;
+- `runtime` may depend on `apps` and `core`;
+- `apps` may depend on `core`;
+- `core` must not depend on `api`, `runtime`, or concrete bounded contexts except in limited bootstrap-level wiring that assembles the application.
 
-На уровне bounded context допустимо следующее направление:
+Inside a bounded context, the allowed direction is:
 
 ```text
 api -> application -> domain
@@ -49,53 +48,53 @@ api -> contracts
 infrastructure -> contracts
 ```
 
-Ограничения по слоям:
+Layer restrictions:
 
-- `domain` не импортирует `api`, `application`, `infrastructure`, ORM models, transport objects и external SDKs;
-- `application` не импортирует transport-specific types и не знает о framework lifecycle;
-- `api` не содержит бизнес-правила и не работает напрямую с persistence models;
-- `contracts` остаются лёгкими typed boundary objects и не зависят от transport или persistence implementation;
-- `infrastructure` реализует adapters и persistence, но не владеет domain rules.
+- `domain` does not import `api`, `application`, `infrastructure`, ORM models, transport objects, or external SDKs;
+- `application` does not import transport-specific types and does not know framework lifecycle;
+- `api` does not hold business rules and does not work directly with persistence models;
+- `contracts` stay lightweight typed boundary objects and do not depend on transport or persistence implementation;
+- `infrastructure` implements adapters and persistence but does not own domain rules.
 
-Cross-context imports:
+Cross-context rules:
 
-- bounded context не импортирует внутренности другого bounded context;
-- межконтекстное взаимодействие идёт через `contracts`, явные public facades или события;
-- прямые импорты `api`, `application.services` и `infrastructure` другого context-а считаются запрещёнными по умолчанию.
+- one bounded context must not import another context's internals;
+- cross-context integration goes through `contracts`, explicit public facades, or events;
+- direct imports of another context's `api`, `application.services`, or `infrastructure` are forbidden by default.
 
 Enforcement model:
 
-- bootstrap modules могут иметь ограниченные исключения для composition root;
-- import boundaries должны постепенно усиливаться через linter и CI hooks;
-- top-level boundary contract должен стремиться к exhaustive enforcement с явными allowlist-исключениями;
-- новые исключения допускаются только как явный архитектурный компромисс, а не как молчаливое правило.
+- bootstrap modules may have narrow composition-root exceptions;
+- import-boundary rules should be strengthened gradually through linter and CI checks;
+- the top-level boundary contract should move toward exhaustive enforcement with explicit allowlisted exceptions;
+- new exceptions are allowed only as explicit architectural compromises, not as silent practice.
 
 ## Consequences
 
 ### Positive
 
-- архитектурные границы становятся проверяемыми, а не декларативными;
-- bounded contexts сохраняют ownership над своей логикой;
-- уменьшается вероятность framework leakage в domain layer;
-- runtime workers и API начинают использовать одни и те же application contracts.
+- architecture boundaries become enforceable instead of declarative;
+- bounded contexts keep ownership of their logic;
+- framework leakage into the domain layer becomes less likely;
+- runtime workers and APIs use the same application contracts.
 
 ### Negative
 
-- появляются дополнительные ограничения на быстрые short-term implementation shortcuts;
-- часть кода приходится перемещать в contracts или public facades вместо прямых импортов.
+- quick short-term implementation shortcuts become harder;
+- some code must move into contracts or public facades instead of direct imports.
 
 ### Neutral
 
-- конкретный инструмент enforcement может меняться, если сохраняется сама модель направленных зависимостей.
+- the concrete enforcement tool may change as long as the dependency model remains directional.
 
 ## Alternatives considered
 
-- не фиксировать import boundaries и полагаться на code review;
-- разрешить bounded contexts свободно импортировать внутренности друг друга;
-- использовать только naming conventions без явной dependency model.
+- not enforcing import boundaries and relying only on code review;
+- letting bounded contexts import each other's internals freely;
+- relying only on naming conventions with no explicit dependency model.
 
 ## Follow-up work
 
-- [x] добавить базовую import-linter configuration в backend tooling
-- [ ] расширить CI checks до автоматической проверки top-level и cross-context boundaries
-- [ ] добавить правила для domain-safe modules внутри `core`
+- [x] add baseline import-linter configuration to backend tooling
+- [ ] expand CI checks to automatically enforce top-level and cross-context boundaries
+- [ ] add rules for domain-safe modules inside `core`

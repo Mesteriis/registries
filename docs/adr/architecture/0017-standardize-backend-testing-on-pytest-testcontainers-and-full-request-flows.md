@@ -17,76 +17,76 @@
 
 ## Context
 
-Общая layered testing strategy уже зафиксирована, но для backend по-прежнему не определены жёсткие правила test harness, допустимые doubles и форма тестовых данных. Без этого команда быстро скатывается в несколько нежелательных паттернов:
+The layered testing strategy already exists, but backend-specific rules for the
+test harness, doubles, and test data were still easy to dilute. Without a hard
+policy, teams quickly fall into several bad patterns:
 
-- SQLite используется как дешёвая замена PostgreSQL и скрывает реальные ограничения production storage;
-- Redis либо не тестируется вовсе, либо заменяется in-memory подделками;
-- internal services и repositories мокируются до такой степени, что тест перестаёт проверять реальный execution path;
-- тестовые payloads собираются сырыми `dict`, что размывает contract boundaries;
-- фикстуры и helpers размазываются по случайным файлам, а структура тестов перестаёт повторять структуру проекта.
-
-Для максимально opinionated template нужна единая backend testing policy, которая проверяет реальные runtime boundaries, а не только отдельные куски логики.
+- using SQLite as a cheap substitute for PostgreSQL and hiding real storage constraints;
+- skipping Redis tests or replacing them with in-memory fakes;
+- mocking internal services and repositories so heavily that tests stop validating the real execution path;
+- building test payloads from raw `dict` objects and weakening contract boundaries;
+- scattering fixtures and helpers through random files instead of mirroring the project structure.
 
 ## Decision
 
-Backend tests стандартизируются следующим образом.
+Backend testing is standardized as follows.
 
-Тестовый runtime:
+Test runtime:
 
-- backend использует `pytest` как единственный test runner;
-- для integration и persistence tests поднимаются только реальные `PostgreSQL` и `Redis` через `Testcontainers`;
-- `SQLite` запрещён как test database и не считается допустимой заменой `PostgreSQL`;
-- миграции и persistence behavior проверяются против той же реляционной модели, что и production path.
+- `pytest` is the only backend test runner;
+- integration and persistence tests use real `PostgreSQL` and `Redis` through `Testcontainers`;
+- SQLite is forbidden as the backend test database and is not an accepted substitute for `PostgreSQL`;
+- migrations and persistence behavior are validated against the same relational model used by the production path.
 
-Допустимый execution path:
+Allowed execution path:
 
-- backend integration/API tests по умолчанию проверяют полный путь `request -> endpoint -> service -> repo -> db -> repo -> service -> endpoint -> response`;
-- internal services, repositories, UoW и persistence adapters не мокируются в обычных backend tests;
-- если тестируется клиент внешнего API, подмена делается не через мок методов, а через поднятие fake external service с предсказуемыми ответами;
-- мокать допустимо только внешние API boundaries и внешние side effects, которые не принадлежат самому сервису.
+- backend integration and API tests validate the full path `request -> endpoint -> service -> repo -> db -> repo -> service -> endpoint -> response`;
+- internal services, repositories, Unit of Work objects, and persistence adapters are not mocked in normal backend tests;
+- when testing an external API client, substitution happens through a fake external service with predictable responses rather than by mocking internal methods;
+- only external API boundaries and external side effects outside the service's ownership may be mocked.
 
-Тестовые данные и factories:
+Test data and factories:
 
-- тестовые данные создаются через `faker` и `polyfactory`;
-- сырые `dict` как основной способ построения test input/output запрещены;
-- test payloads и expected values должны собираться через typed models, factories, dataclasses или Pydantic structures;
-- fixtures и factories должны давать repeatable, typed test arrangements.
+- test data is created through `faker` and `polyfactory`;
+- raw `dict` objects are not the main way to build test input and output;
+- payloads and expected values should be assembled through typed models, factories, dataclasses, or Pydantic structures;
+- fixtures and factories must provide repeatable, typed arrangements.
 
-Организация тестов:
+Test organization:
 
-- структура тестов повторяет структуру проекта;
-- backend tests размещаются под `src/backend/tests/` и отражают `apps/`, `core/` и `runtime/`;
-- fixtures объявляются только в `conftest.py` на соответствующем уровне;
-- тесты пишутся только как function-based pytest tests;
-- class-based test containers, `unittest.TestCase` и grouping через тестовые классы запрещены.
+- the test tree mirrors the project structure;
+- backend tests live under `src/backend/tests/` and reflect `apps/`, `core/`, and `runtime/`;
+- fixtures are declared only in `conftest.py` files at the appropriate scope;
+- tests are written as function-based pytest tests only;
+- class-based test containers, `unittest.TestCase`, and grouping through test classes are forbidden.
 
 ## Consequences
 
 ### Positive
 
-- integration tests начинают проверять реальный backend flow, а не заранее замоканную схему вызовов;
-- persistence и transaction behavior валидируются на production-like `PostgreSQL` и `Redis`;
-- тестовые данные получают typed boundaries и лучше переживают refactor;
-- структура тестов остаётся предсказуемой и совпадает со структурой сервиса.
+- integration tests validate the real backend flow instead of a pre-mocked call chain;
+- persistence and transaction behavior are exercised against production-like `PostgreSQL` and `Redis`;
+- test data keeps typed boundaries and survives refactors better;
+- test structure stays predictable and mirrors the service structure.
 
 ### Negative
 
-- integration tests становятся тяжелее и медленнее, чем при SQLite или in-memory doubles;
-- fake external services требуют больше обвязки, чем прямой monkeypatch.
+- integration tests are heavier and slower than SQLite or in-memory doubles;
+- fake external services require more setup than direct monkeypatching.
 
 ### Neutral
 
-- unit tests для pure domain logic остаются допустимыми, но даже они должны придерживаться typed factories и function-based pytest style.
+- unit tests for pure domain logic remain valid, but they still should use typed factories and function-based pytest style.
 
 ## Alternatives considered
 
-- использовать `SQLite` для дешёвых repository tests;
-- мокировать services и repositories в большинстве endpoint tests;
-- использовать raw `dict` и ad-hoc payload builders как основную форму test data;
-- разрешить test classes и произвольное размещение fixtures рядом с отдельными test files.
+- using SQLite for cheap repository tests;
+- mocking services and repositories in most endpoint tests;
+- using raw `dict` payload builders as the main form of test data;
+- allowing test classes and arbitrary fixture placement next to individual test files.
 
 ## Follow-up work
 
-- [ ] добавить backend test tooling для `Testcontainers` с `PostgreSQL` и `Redis`
-- [ ] ввести static checks против `SQLite` и class-based pytest tests
-- [ ] добавить factories на `faker` и `polyfactory` в template baseline
+- [ ] add backend test tooling for `Testcontainers` with `PostgreSQL` and `Redis`
+- [ ] add static checks against SQLite and class-based pytest tests
+- [ ] add `faker` and `polyfactory` factories to the template baseline

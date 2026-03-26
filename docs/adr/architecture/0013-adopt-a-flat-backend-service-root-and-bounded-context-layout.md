@@ -17,20 +17,22 @@
 
 ## Context
 
-Repo layout сам по себе не отвечает на вопрос, как должен быть устроен backend service изнутри. Без отдельного решения код быстро деградирует в смесь корневых каталогов вроде `api/`, `domain/`, `infrastructure/` без явной top-level модели, а импорты начинают опираться на случайный namespace layer, который не несёт архитектурной ценности.
+Repository layout alone does not answer how the backend service should be
+organized internally. Without a separate decision, code quickly degrades into a
+mix of root directories like `api/`, `domain/`, and `infrastructure/` with no
+clear top-level model, and imports start relying on a namespace layer that adds
+no architectural value.
 
-Это создаёт несколько проблем:
+This creates several problems:
 
-- `src/backend` получает лишний промежуточный namespace layer, который не даёт новых архитектурных границ;
-- слои верхнего уровня смешиваются с bounded contexts;
-- новые модули копируют layout случайным образом;
-- backend структура теряет связь между transport layer, application layer, platform kernel и runtime workers.
-
-Нужно зафиксировать плоский backend service root, который будет масштабироваться по мере появления новых bounded contexts без дополнительной вложенности.
+- `src/backend` gains an unnecessary wrapper namespace with no real boundary value;
+- top-level layers mix with bounded contexts;
+- new modules copy the layout inconsistently;
+- the backend loses the distinction between transport, application, platform kernel, and runtime workers.
 
 ## Decision
 
-Каждый backend service использует плоский service root прямо внутри `src/backend/`.
+Each backend service uses a flat service root directly inside `src/backend/`.
 
 Repository layout:
 
@@ -45,17 +47,17 @@ src/backend/
   pyproject.toml
 ```
 
-Правила package layout:
+Package-layout rules:
 
-- `src/backend` является одновременно service root для backend-кода и repository-local root для manifests, tests и tooling;
-- runtime imports backend service начинаются сразу с `api.*`, `apps.*`, `core.*` и `runtime.*`;
-- top-level backend service root делится на `api`, `apps`, `core` и `runtime`;
-- `apps/` содержит bounded contexts;
-- `core/` содержит минимальный shared platform kernel;
-- `runtime/` содержит workers, stream consumers, schedulers и orchestration primitives;
-- `tests/` повторяет архитектурную топологию backend service root, а не legacy root-layer layout.
+- `src/backend` is both the service root for backend code and the repository-local root for manifests, tests, and tooling;
+- runtime imports start with `api.*`, `apps.*`, `core.*`, and `runtime.*`;
+- the top-level backend service root is split into `api`, `apps`, `core`, and `runtime`;
+- `apps/` contains bounded contexts;
+- `core/` contains the minimal shared platform kernel;
+- `runtime/` contains workers, stream consumers, schedulers, and orchestration primitives;
+- `tests/` mirrors the backend service topology rather than a legacy flat root layout.
 
-Каждый bounded context в `apps/<context>/` использует единый шаблон:
+Each bounded context under `apps/<context>/` uses the same internal template:
 
 ```text
 apps/<context>/
@@ -66,54 +68,54 @@ apps/<context>/
   infrastructure/
 ```
 
-Назначение top-level packages:
+Top-level package ownership:
 
-- `api` отвечает за HTTP versioning, root router composition и transport wiring, но не является складом app-level contracts;
-- `apps` отвечает за domain-owned bounded contexts;
-- `core` отвечает за shared settings, bootstrap, db primitives и другие стабильные платформенные модули;
-- `runtime` отвечает за async workers, background orchestration и messaging runtime.
+- `api` owns HTTP versioning, root router composition, and transport wiring, but it is not a warehouse for app-level contracts;
+- `apps` owns domain-focused bounded contexts;
+- `core` owns shared settings, bootstrap, DB primitives, and other stable platform modules;
+- `runtime` owns async workers, background orchestration, and messaging runtime.
 
-Назначение context layers:
+Context-layer ownership:
 
-- `api` для transport adapters, dependency wiring и response mapping;
-- `application` для use cases и orchestration;
-- `contracts` для typed boundary models, принадлежащих bounded context;
-- `domain` для business rules, entities и policies;
-- `infrastructure` для persistence и технических adapters.
+- `api` for transport adapters, dependency wiring, and response mapping;
+- `application` for use cases and orchestration;
+- `contracts` for typed boundary models owned by the bounded context;
+- `domain` for business rules, entities, and policies;
+- `infrastructure` for persistence and technical adapters.
 
-Правило ownership для контрактов:
+Contract ownership rule:
 
-- app-level contracts живут в `apps/<context>/contracts`;
-- top-level `api/` не должен накапливать per-context request/response schemas;
-- truly global transport envelopes допустимы только как редкое исключение и не должны подменять ownership bounded contexts.
+- app-level contracts live in `apps/<context>/contracts`;
+- top-level `api/` must not accumulate per-context request and response schemas;
+- truly global transport envelopes are allowed only as rare exceptions and must not replace bounded-context ownership.
 
 ## Consequences
 
 ### Positive
 
-- backend получает более короткий и прозрачный import graph без искусственного namespace layer;
-- bounded contexts становятся первым уровнем архитектуры, а не побочным эффектом структуры файлов;
-- проще вводить static checks для import boundaries и package ownership;
-- bootstrap, runtime и transport responsibilities перестают смешиваться на корне backend service.
+- the backend gets a shorter, clearer import graph with no artificial namespace wrapper;
+- bounded contexts become the first architectural layer rather than a side effect of file placement;
+- static checks for import boundaries and package ownership become easier to add;
+- bootstrap, runtime, and transport responsibilities stop mixing at the root.
 
 ### Negative
 
-- начальная структура выглядит тяжелее, чем flat scaffold;
-- для небольших временных модулей нужно сразу выбирать правильный bounded context и слой.
+- the initial structure is heavier than a flat scaffold;
+- even small temporary modules must be placed in the correct bounded context and layer.
 
 ### Neutral
 
-- конкретные имена top-level packages фиксированы этим ADR и не требуют дополнительного service package wrapper.
+- the specific top-level package names are fixed by this ADR and do not require another service package wrapper.
 
 ## Alternatives considered
 
-- хранить `api`, `domain`, `infrastructure` и `settings` прямо в корне `src/backend` без разделения на bounded contexts;
-- использовать `src.backend.*` как runtime import namespace;
-- оборачивать backend в дополнительный service package внутри `src/backend`;
-- раскладывать backend по техническим слоям без bounded contexts.
+- keeping `api`, `domain`, `infrastructure`, and `settings` directly at `src/backend` root with no bounded contexts;
+- using `src.backend.*` as the runtime import namespace;
+- wrapping the backend in another service package under `src/backend`;
+- organizing the backend only by technical layers and not by bounded contexts.
 
 ## Follow-up work
 
-- [x] создать initial backend service root и system context scaffold
-- [x] перевести минимальный FastAPI entrypoint на плоский service root
-- [ ] добавить static checks для import boundaries между top-level packages и context layers
+- [x] create the initial backend service root and `system` context scaffold
+- [x] move the initial FastAPI entrypoint to the flat service root
+- [ ] add static checks for import boundaries between top-level packages and context layers

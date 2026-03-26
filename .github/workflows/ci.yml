@@ -53,10 +53,15 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: src/frontend/pnpm-lock.yaml
+          cache-dependency-path: |
+            src/frontend/pnpm-lock.yaml
+            docs/pnpm-lock.yaml
 
       - name: Install frontend dependencies
         run: make frontend-install
+
+      - name: Install docs dependencies
+        run: make docs-install
 
       - name: Lint frontend
         run: make frontend-lint
@@ -69,6 +74,9 @@ jobs:
 
       - name: Build frontend
         run: make frontend-build
+
+      - name: Build docs
+        run: make docs-build
 
   security-and-images:
     runs-on: ubuntu-latest

@@ -3,6 +3,10 @@
 This document is the fast path for new developers. Read this before going deep
 into ADRs.
 
+Public docs portal:
+
+- `https://mesteriis.github.io/fullstack-template/`
+
 ## Prerequisites
 
 Required local tools:
@@ -198,6 +202,8 @@ Common commands:
 - `make contract-test`
 - `make e2e-test`
 - `make build`
+- `make docs-build`
+- `make docs-dev`
 - `make ci`
 
 App-specific commands:

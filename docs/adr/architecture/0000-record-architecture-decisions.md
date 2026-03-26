@@ -13,45 +13,48 @@
 
 ## Context
 
-Ключевые архитектурные решения быстро теряются в чатах, PR и устных договорённостях. Без постоянного журнала решений команде сложно понимать, почему система устроена именно так и какие ограничения уже были приняты сознательно.
+Important architecture decisions are quickly lost in chats, pull requests, and
+verbal agreements. Without a persistent decision log, it becomes hard to
+understand why the system looks the way it does and which constraints were
+chosen deliberately.
 
 ## Decision
 
-Архитектурно значимые решения фиксируются в виде ADR внутри репозитория в каталоге `docs/adr`.
+Architecture-significant decisions are recorded as ADRs in `docs/adr`.
 
-Каждый ADR:
+Each ADR:
 
-- описывает одно решение;
-- проходит review через pull request;
-- имеет уникальный номер;
-- остаётся частью истории репозитория;
-- обновляется через новый ADR, а не через переписывание прошлого.
+- documents one decision;
+- is reviewed through a pull request;
+- has a unique number;
+- remains part of repository history;
+- is updated by a new ADR rather than by rewriting the old one.
 
 ## Consequences
 
 ### Positive
 
-- появляется единый журнал архитектурных решений;
-- упрощается онбординг новых участников;
-- уменьшается повторное обсуждение уже принятых решений.
+- the repository gains a single log of architecture decisions;
+- onboarding becomes easier for new contributors;
+- already-made decisions are discussed repeatedly less often.
 
 ### Negative
 
-- требуется дисциплина для своевременного обновления ADR;
-- устаревшие статусы могут вводить в заблуждение, если их не поддерживать.
+- the team must keep ADRs up to date with discipline;
+- stale statuses can become misleading if they are not maintained.
 
 ### Neutral
 
-- ADR не заменяют RFC, дизайн-доки и issue; они фиксируют именно принятое решение.
+- ADRs do not replace RFCs, design docs, or issues; they record the accepted decision itself.
 
 ## Alternatives considered
 
-- не документировать решения формально;
-- документировать решения только в issue и pull request;
-- вести отдельную wiki вне репозитория.
+- not documenting decisions formally;
+- documenting decisions only in issues and pull requests;
+- keeping a separate wiki outside the repository.
 
 ## Follow-up work
 
-- [ ] добавить ADR checklist в PR template
-- [ ] завести шаблон ADR для новых решений
-- [ ] считать архитектурные изменения без ADR неполными
+- [ ] add an ADR checklist to the PR template
+- [ ] create a reusable ADR template
+- [ ] treat architecture changes without an ADR as incomplete
