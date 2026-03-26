@@ -43,6 +43,8 @@ REQUIRED_SCRIPTS = {
     "scripts/check_ci_symmetry.py",
     "scripts/check_environment.py",
     "scripts/check_frontend_architecture.py",
+    "scripts/check_http_contract_parity.py",
+    "scripts/generate_frontend_openapi_client.py",
     "scripts/check_repo_structure.py",
     "scripts/check_specs.py",
     "scripts/check_template_consistency.py",

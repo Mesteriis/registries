@@ -25,9 +25,11 @@ class _FakeSession:
 
     async def commit(self) -> None:
         self.commit_calls += 1
+        self._in_transaction = False
 
     async def rollback(self) -> None:
         self.rollback_calls += 1
+        self._in_transaction = False
 
     async def flush(self) -> None:
         self.flush_calls += 1
@@ -119,6 +121,20 @@ def test_base_async_unit_of_work_rolls_back_and_closes_owned_session() -> None:
     assert session.close_calls == 1
 
 
+def test_base_async_unit_of_work_does_not_commit_implicitly() -> None:
+    session = _FakeSession(in_transaction=True)
+
+    async def scenario() -> None:
+        async with BaseAsyncUnitOfWork(cast(Any, session), owns_session=True):
+            pass
+
+    run_async(scenario())
+
+    assert session.commit_calls == 0
+    assert session.rollback_calls == 1
+    assert session.close_calls == 1
+
+
 def test_base_async_unit_of_work_rolls_back_on_exception() -> None:
     session = _FakeSession()
 
@@ -130,6 +146,20 @@ def test_base_async_unit_of_work_rolls_back_on_exception() -> None:
         run_async(scenario())
 
     assert session.rollback_calls == 1
+    assert session.close_calls == 1
+
+
+def test_base_async_unit_of_work_respects_explicit_commit() -> None:
+    session = _FakeSession(in_transaction=True)
+
+    async def scenario() -> None:
+        async with BaseAsyncUnitOfWork(cast(Any, session), owns_session=True) as uow:
+            await uow.commit()
+
+    run_async(scenario())
+
+    assert session.commit_calls == 1
+    assert session.rollback_calls == 0
     assert session.close_calls == 1
 
 

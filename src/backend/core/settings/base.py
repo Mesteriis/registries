@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AppSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: str = "Registries API"
+    name: str = "Fullstack Template API"
     version: str = "0.1.0"
     environment: str = "local"
 
@@ -29,15 +29,15 @@ class ApiSettings(BaseModel):
 class DatabaseSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    postgres_dsn: str = "postgresql+asyncpg://registries:registries@localhost:5432/registries"
+    postgres_dsn: str = "postgresql+asyncpg://fullstack_template:fullstack_template@localhost:5432/fullstack_template"
     redis_url: str = "redis://localhost:6379/0"
 
 
 class BrokerSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    taskiq_queue_name: str = "registries:taskiq"
-    taskiq_consumer_group_name: str = "registries:backend"
+    taskiq_queue_name: str = "fullstack-template:taskiq"
+    taskiq_consumer_group_name: str = "fullstack-template:backend"
 
 
 class ObservabilitySettings(BaseModel):
@@ -96,7 +96,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        env_prefix="REGISTRIES_",
+        env_prefix="FULLSTACK_TEMPLATE_",
         env_nested_delimiter="__",
         extra="ignore",
         nested_model_default_partial_update=True,

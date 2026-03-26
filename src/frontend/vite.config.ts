@@ -24,6 +24,7 @@ function readBooleanEnv(rawValue: string | undefined, fallback: boolean): boolea
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const sourceMapsEnabled = readBooleanEnv(env.VITE_OBSERVABILITY_SOURCEMAPS_ENABLED, false);
+  const devProxyTarget = env.VITE_DEV_PROXY_TARGET?.trim() || "http://127.0.0.1:8000";
 
   return {
     plugins: [vue()],
@@ -43,6 +44,12 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "0.0.0.0",
       port: 5173,
+      proxy: {
+        "/api": {
+          target: devProxyTarget,
+          changeOrigin: true,
+        },
+      },
     },
     test: {
       environment: "jsdom",

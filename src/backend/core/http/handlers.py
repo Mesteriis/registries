@@ -1,3 +1,4 @@
+import math
 from typing import cast
 
 from fastapi import Request
@@ -10,10 +11,62 @@ from core.observability import capture_handled_exception, get_logger
 from core.observability.context import get_correlation_id, get_request_id
 
 HTTP_ERROR_LOGGER = get_logger("core.http.handlers")
+_FILTERED_VALUE = "[FILTERED]"
+_REDACTED_VALUE = "[REDACTED]"
+_MAX_VALIDATION_VALUE_LENGTH = 120
+_SENSITIVE_FIELD_PARTS = frozenset(
+    {
+        "authorization",
+        "cookie",
+        "credential",
+        "credentials",
+        "password",
+        "secret",
+        "set-cookie",
+        "token",
+    }
+)
 
 
 def _field_name(parts: tuple[object, ...]) -> str:
     return ".".join(str(part) for part in parts)
+
+
+def _sanitize_validation_input(*, field: str | None, value: object | None) -> object | None:
+    if value is None:
+        return None
+
+    if _is_sensitive_field(field):
+        return _REDACTED_VALUE
+
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, int):
+        return value
+
+    if isinstance(value, float):
+        return value if math.isfinite(value) else _FILTERED_VALUE
+
+    if isinstance(value, str):
+        return _truncate_validation_value(value)
+
+    return _FILTERED_VALUE
+
+
+def _is_sensitive_field(field: str | None) -> bool:
+    if not field:
+        return False
+
+    field_parts = {part.lower() for part in field.split(".") if part}
+    return not field_parts.isdisjoint(_SENSITIVE_FIELD_PARTS)
+
+
+def _truncate_validation_value(value: str) -> str:
+    if len(value) <= _MAX_VALIDATION_VALUE_LENGTH:
+        return value
+
+    return f"{value[:_MAX_VALIDATION_VALUE_LENGTH]}..."
 
 
 def _resolved_request_id(request: Request) -> str | None:
@@ -67,11 +120,12 @@ async def handle_request_validation_error(request: Request, exc: Exception) -> J
     validation_error = cast(RequestValidationError, exc)
     details: tuple[ApiErrorDetail, ...] = tuple(
         ApiErrorFactory.build_detail(
-            field=_field_name(tuple(error.get("loc", ()))),
+            field=field_name,
             message=str(error.get("msg", "Validation failed.")),
-            value=error.get("input"),
+            value=_sanitize_validation_input(field=field_name, value=error.get("input")),
         )
         for error in validation_error.errors()
+        for field_name in (_field_name(tuple(error.get("loc", ()))),)
     )
     platform_error = ValidationFailedError()
     payload = ApiErrorFactory.build_from_platform_error(

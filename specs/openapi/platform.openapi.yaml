@@ -1,11 +1,39 @@
 openapi: 3.1.0
 info:
-  title: Maximum Platform Template API
+  title: Fullstack Template API
   version: 0.1.0
 paths:
-  /api/system/health:
+  /api/v1/system/livez:
     get:
-      operationId: getSystemHealth
+      operationId: readLiveness
+      summary: Read service liveness
+      responses:
+        "200":
+          description: Service process is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LivenessProbe"
+  /api/v1/system/readyz:
+    get:
+      operationId: readReadiness
+      summary: Read service readiness
+      responses:
+        "200":
+          description: Current service readiness snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessProbe"
+        "503":
+          description: One or more readiness checks failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessProbe"
+  /api/v1/system/health:
+    get:
+      operationId: readHealth
       summary: Read service health
       responses:
         "200":
@@ -13,10 +41,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServiceHealth"
+                $ref: "#/components/schemas/ReadinessProbe"
+        "503":
+          description: One or more dependency checks failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessProbe"
 components:
   schemas:
-    ServiceHealth:
+    LivenessProbe:
       type: object
       additionalProperties: false
       required:
@@ -25,5 +59,43 @@ components:
       properties:
         status:
           type: string
+          const: ok
         service:
           type: string
+    DependencyProbe:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+        detail:
+          type:
+            - string
+            - "null"
+    ReadinessProbe:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - service
+        - checks
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - error
+        service:
+          type: string
+        checks:
+          type: array
+          items:
+            $ref: "#/components/schemas/DependencyProbe"

@@ -48,7 +48,7 @@ def test_settings_observability_properties_fall_back_to_app_values() -> None:
 
 def test_get_settings_is_cached(monkeypatch: pytest.MonkeyPatch) -> None:
     get_settings.cache_clear()
-    monkeypatch.setenv("REGISTRIES_API__PREFIX", "cached")
+    monkeypatch.setenv("FULLSTACK_TEMPLATE_API__PREFIX", "cached")
 
     first = get_settings()
     second = get_settings()

@@ -3,11 +3,11 @@ BACKEND_PYTHON := uv run --project src/backend python
 
 .PHONY: help \
 	backend-sync frontend-install install-hooks bootstrap \
-	check check-core check-environment doctor frontend-architecture \
+	check check-core check-environment doctor frontend-architecture contract-parity frontend-api-generate \
 	backend-fix frontend-fix fix \
 	backend-lint backend-observability frontend-lint repo-lint lint lint-core \
 	backend-types frontend-types \
-	backend-test frontend-test test test-core \
+	backend-test frontend-test contract-test e2e-test test test-core \
 	frontend-build build build-core \
 	backend-security repo-security security \
 	docker-build security-core ci
@@ -42,8 +42,12 @@ check-core: ## Run repository invariants shared by local checks, doctor and CI
 	$(BACKEND_PYTHON) scripts/check_backend_observability.py
 	python3 scripts/check_frontend_architecture.py
 	python3 scripts/check_specs.py
+	$(BACKEND_PYTHON) scripts/check_http_contract_parity.py
 	python3 scripts/check_template_consistency.py
 	python3 scripts/check_ci_symmetry.py
+
+contract-parity: ## Validate spec/backend/frontend HTTP contract parity
+	$(BACKEND_PYTHON) scripts/check_http_contract_parity.py
 
 check: ## Run repository invariants
 	@$(MAKE) check-core
@@ -61,7 +65,11 @@ backend-fix: ## Run backend autofixers
 	python3 scripts/run_backend_eradicate.py
 
 frontend-fix: ## Run frontend autofixers
+	uv run --project src/backend python scripts/generate_frontend_openapi_client.py
 	python3 scripts/run_frontend_lint_fix.py
+
+frontend-api-generate: ## Generate frontend API client and types from OpenAPI
+	uv run --project src/backend python scripts/generate_frontend_openapi_client.py
 
 fix: ## Run all autofixers
 	@echo "==> Fixing backend sources"
@@ -69,6 +77,7 @@ fix: ## Run all autofixers
 	python3 scripts/run_backend_pyupgrade.py
 	python3 scripts/run_backend_eradicate.py
 	@echo "==> Fixing frontend sources"
+	uv run --project src/backend python scripts/generate_frontend_openapi_client.py
 	python3 scripts/run_frontend_lint_fix.py
 
 backend-lint: ## Run backend lint pipeline
@@ -115,11 +124,21 @@ backend-test: ## Run backend tests
 frontend-test: ## Run frontend tests
 	python3 scripts/run_frontend_tests.py
 
+contract-test: ## Run cross-app contract tests
+	python3 scripts/run_contract_tests.py
+
+e2e-test: ## Run cross-app smoke/e2e tests
+	python3 scripts/run_e2e_tests.py
+
 test-core: ## Run the shared test stage for local and CI workflows
 	@echo "==> Testing backend"
 	@$(MAKE) backend-test
 	@echo "==> Testing frontend"
 	@$(MAKE) frontend-test
+	@echo "==> Testing cross-app contracts"
+	@$(MAKE) contract-test
+	@echo "==> Testing cross-app smoke flows"
+	@$(MAKE) e2e-test
 
 test: ## Run full test pipeline
 	@$(MAKE) test-core

@@ -84,7 +84,7 @@ function createDisabledObservabilityConfig() {
     enabled: false,
     environment: "test",
     release: "test-release",
-    serviceName: "registries-frontend-test",
+    serviceName: "fullstack-template-frontend-test",
     sentryEnabled: false,
     glitchtipDsn: "",
     tracingEnabled: false,

@@ -15,7 +15,7 @@ class SystemStatusService:
     health_port: SystemHealthPort
 
     async def get_liveness(self) -> LivenessProbe:
-        return LivenessProbe(service=self.settings.app.name)
+        return LivenessProbe(status="ok", service=self.settings.app.name)
 
     async def get_readiness(self) -> ReadinessProbe:
         checks: list[DependencyProbe] = []

@@ -60,12 +60,12 @@ def _clear_settings_cache() -> None:
 
 def _build_test_env(*, postgres_dsn: str, redis_url: str) -> dict[str, str]:
     return {
-        "REGISTRIES_DB__POSTGRES_DSN": postgres_dsn,
-        "REGISTRIES_DB__REDIS_URL": redis_url,
-        "REGISTRIES_OBSERVABILITY__LOGS_ENABLED": "false",
-        "REGISTRIES_OBSERVABILITY__TRACES_ENABLED": "false",
-        "REGISTRIES_OBSERVABILITY__SENTRY_ENABLED": "false",
-        "REGISTRIES_OBSERVABILITY__METRICS_ENABLED": "true",
+        "FULLSTACK_TEMPLATE_DB__POSTGRES_DSN": postgres_dsn,
+        "FULLSTACK_TEMPLATE_DB__REDIS_URL": redis_url,
+        "FULLSTACK_TEMPLATE_OBSERVABILITY__LOGS_ENABLED": "false",
+        "FULLSTACK_TEMPLATE_OBSERVABILITY__TRACES_ENABLED": "false",
+        "FULLSTACK_TEMPLATE_OBSERVABILITY__SENTRY_ENABLED": "false",
+        "FULLSTACK_TEMPLATE_OBSERVABILITY__METRICS_ENABLED": "true",
     }
 
 
@@ -94,9 +94,9 @@ def _wait_for_redis(host: str, port: int) -> None:
 def postgres_container() -> Iterator[PostgresContainer]:
     with PostgresContainer(
         "postgres:17-alpine",
-        username="registries",
-        password="registries",
-        dbname="registries",
+        username="fullstack_template",
+        password="fullstack_template",
+        dbname="fullstack_template",
     ) as container:
         yield container
 

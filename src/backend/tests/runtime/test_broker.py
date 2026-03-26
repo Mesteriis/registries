@@ -10,8 +10,8 @@ def test_runtime_orchestration_exports_broker_from_settings(monkeypatch: pytest.
     settings = build_settings(
         db={"redis_url": "redis://cache.example:6379/7"},
         broker={
-            "taskiq_queue_name": "registries:test",
-            "taskiq_consumer_group_name": "registries:consumer",
+            "taskiq_queue_name": "fullstack-template:test",
+            "taskiq_consumer_group_name": "fullstack-template:consumer",
         },
     )
 
@@ -31,6 +31,6 @@ def test_runtime_orchestration_exports_broker_from_settings(monkeypatch: pytest.
 
     assert runtime_orchestration_module.broker == {
         "url": "redis://cache.example:6379/7",
-        "queue_name": "registries:test",
-        "consumer_group_name": "registries:consumer",
+        "queue_name": "fullstack-template:test",
+        "consumer_group_name": "fullstack-template:consumer",
     }

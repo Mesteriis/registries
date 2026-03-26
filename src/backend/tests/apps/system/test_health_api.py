@@ -22,7 +22,7 @@ def test_root_returns_service_metadata(
 
     assert response.status_code == 200
     expected = ServiceMetadataFactory.build(
-        service="Registries API",
+        service="Fullstack Template API",
         docs="/docs",
         health=reverse("read_health"),
         liveness=reverse("read_liveness"),
@@ -39,7 +39,7 @@ def test_liveness_endpoint_returns_ok_status(
     payload = LivenessProbe.model_validate(response.json())
 
     assert response.status_code == 200
-    assert payload == LivenessProbeFactory.build(service="Registries API")
+    assert payload == LivenessProbeFactory.build(service="Fullstack Template API")
 
 
 def test_readiness_endpoint_returns_dependency_statuses(
@@ -52,7 +52,7 @@ def test_readiness_endpoint_returns_dependency_statuses(
     assert response.status_code == 200
     assert payload == ReadinessProbeFactory.build(
         status="ok",
-        service="Registries API",
+        service="Fullstack Template API",
         checks=(
             DependencyProbeFactory.build(name="postgres", status="ok", detail=None),
             DependencyProbeFactory.build(name="redis", status="ok", detail=None),
@@ -70,7 +70,7 @@ def test_health_endpoint_returns_dependency_statuses(
     assert response.status_code == 200
     assert payload == ReadinessProbeFactory.build(
         status="ok",
-        service="Registries API",
+        service="Fullstack Template API",
         checks=(
             DependencyProbeFactory.build(name="postgres", status="ok", detail=None),
             DependencyProbeFactory.build(name="redis", status="ok", detail=None),
@@ -96,7 +96,7 @@ def test_readiness_returns_503_when_redis_is_unreachable(
     assert response.headers["x-request-id"] == request_id
     assert payload == ReadinessProbeFactory.build(
         status="error",
-        service="Registries API",
+        service="Fullstack Template API",
         checks=(
             DependencyProbeFactory.build(name="postgres", status="ok", detail=None),
             DependencyProbeFactory.build(name="redis", status="error", detail="redis unavailable"),
@@ -109,9 +109,7 @@ def test_health_returns_503_when_postgres_is_unreachable(
     faker: Faker,
     free_tcp_port_factory: Callable[[], int],
 ) -> None:
-    unavailable_postgres_dsn = (
-        f"postgresql+asyncpg://registries:registries@127.0.0.1:{free_tcp_port_factory()}/registries"
-    )
+    unavailable_postgres_dsn = f"postgresql+asyncpg://fullstack_template:fullstack_template@127.0.0.1:{free_tcp_port_factory()}/fullstack_template"
     app = app_factory(override_postgres_dsn=unavailable_postgres_dsn)
     correlation_id = faker.uuid4()
 
@@ -124,7 +122,7 @@ def test_health_returns_503_when_postgres_is_unreachable(
     assert response.headers["x-correlation-id"] == correlation_id
     assert payload == ReadinessProbeFactory.build(
         status="error",
-        service="Registries API",
+        service="Fullstack Template API",
         checks=(
             DependencyProbeFactory.build(name="postgres", status="error", detail="database unavailable"),
             DependencyProbeFactory.build(name="redis", status="ok", detail=None),

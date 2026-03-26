@@ -64,7 +64,7 @@ withDefaults(
               tone="info"
               variant="soft"
             >
-              Template-grade frontend
+              Template baseline
             </StatusBadge>
           </AppInline>
 

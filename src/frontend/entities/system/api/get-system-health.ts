@@ -1,7 +1,5 @@
-import type { ReadinessProbe } from "@/entities/system/model/system-health";
-import { type ApiResponse,httpClient } from "@/shared/api";
-import { appConfig } from "@/shared/config/env";
+import { type ApiResponse, httpClient, readHealth, type ReadinessProbe } from "@/shared/api";
 
 export function getSystemHealth(): Promise<ApiResponse<ReadinessProbe>> {
-  return httpClient.requestJson<ReadinessProbe>(appConfig.systemHealthPath);
+  return readHealth(httpClient);
 }

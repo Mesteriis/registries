@@ -1,5 +1,11 @@
 # Contributing
 
+Start here before changing runtime or architecture:
+
+1. [README.md](./README.md)
+2. [docs/getting-started.md](./docs/getting-started.md)
+3. [docs/adr/INDEX.md](./docs/adr/INDEX.md)
+
 ## Workflow
 
 1. Update specs first when changing public contracts.
@@ -14,6 +20,8 @@
 - Cross-app tests live only in `tests/`
 - Migrations live in `migrations/`
 - Contract sources live in `specs/`
+
+`specs/` remains the source of truth for public API contracts.
 
 ## Pull Requests
 

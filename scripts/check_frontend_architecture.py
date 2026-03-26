@@ -26,6 +26,7 @@ REQUIRED_FILES = (
     "src/frontend/app/App.vue",
     "src/frontend/app/main.ts",
     "src/frontend/app/router/index.ts",
+    "src/frontend/shared/api/generated/platform-api.ts",
     "src/frontend/shared/api/http-client.ts",
     "src/frontend/shared/config/env.ts",
     "src/frontend/shared/observability/setup.ts",

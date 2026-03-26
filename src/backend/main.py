@@ -1,11 +1,20 @@
 import uvicorn
 from core.bootstrap import create_app
 from core.observability import setup_logging
-from core.settings import get_settings
+from core.settings import Settings, get_settings
+from fastapi import FastAPI
 
-settings = get_settings()
-setup_logging(settings)
-app = create_app()
+
+def bootstrap_runtime() -> tuple[Settings, FastAPI]:
+    """Create the runtime settings/app pair used by the ASGI entrypoint."""
+
+    runtime_settings = get_settings()
+    setup_logging(runtime_settings)
+    runtime_app = create_app()
+    return runtime_settings, runtime_app
+
+
+settings, app = bootstrap_runtime()
 
 
 def run() -> None:

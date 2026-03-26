@@ -20,19 +20,19 @@ onMounted(() => {
 <template>
   <AppStack gap="lg">
     <AppSection
-      title="Layered shell is active"
-      description="Pages stay thin, features own reusable flows, and shared/ui remains the only primitive surface."
+      title="This is the template baseline"
+      description="The homepage explains the reusable engineering baseline. It is intentionally not a product dashboard."
     >
       <AppStack gap="md">
         <AppCard
-          title="UI adapter boundary"
-          description="Local App* primitives are intentionally shaped for low-cost migration to ww-ui-kit."
+          title="What is already implemented"
+          description="The template already includes layered frontend structure, typed API access, observability wiring, strict checks and ADR-driven governance."
         >
           <AppText
             as="p"
             tone="muted"
           >
-            The page composes only features and shared UI primitives. No route-level raw markup or local style leakage is needed.
+            Pages stay thin, features own reusable flows, and shared/ui remains the only primitive surface. Local App* primitives are intentionally shaped for low-cost migration to an external UI kit.
           </AppText>
         </AppCard>
 

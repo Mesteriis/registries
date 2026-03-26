@@ -5,6 +5,7 @@ import "vue-router";
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL?: string;
   readonly VITE_APP_NAME?: string;
+  readonly VITE_DEV_PROXY_TARGET?: string;
   readonly VITE_OBSERVABILITY_ENABLED?: string;
   readonly VITE_OBSERVABILITY_ENVIRONMENT?: string;
   readonly VITE_OBSERVABILITY_GLITCHTIP_DSN?: string;
@@ -19,7 +20,6 @@ interface ImportMetaEnv {
   readonly VITE_OBSERVABILITY_TRACING_ENABLED?: string;
   readonly VITE_OBSERVABILITY_UI_TELEMETRY_ENABLED?: string;
   readonly VITE_OBSERVABILITY_WEB_VITALS_ENABLED?: string;
-  readonly VITE_SYSTEM_HEALTH_PATH?: string;
 }
 
 interface ImportMeta {

@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from core.settings import get_settings
 
+# The backend owns one process-level engine/session factory pair. They are
+# module-scoped on purpose so runtime integrations and tests can share the same
+# explicit singleton instead of constructing ad-hoc engines across imports.
 settings = get_settings()
 
 async_engine = create_async_engine(

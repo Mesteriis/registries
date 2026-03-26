@@ -1,11 +1,13 @@
 {
-  "name": "@registries/frontend",
+  "name": "@fullstack-template/frontend",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "packageManager": "pnpm@10.6.5",
   "scripts": {
     "architecture:check": "python3 ../../scripts/check_frontend_architecture.py",
+    "api:generate": "uv run --project ../backend python ../../scripts/generate_frontend_openapi_client.py",
+    "api:check": "uv run --project ../backend python ../../scripts/generate_frontend_openapi_client.py --check",
     "dev": "vite",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

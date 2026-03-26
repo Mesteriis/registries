@@ -11,7 +11,7 @@ describe("HomePage", () => {
         status: 200,
         json: async () => ({
           status: "ok",
-          service: "Registries API",
+          service: "Fullstack Template API",
           checks: [
             {
               name: "postgresql",
@@ -33,9 +33,9 @@ describe("HomePage", () => {
     await flushPromises();
     await flushPromises();
 
-    expect(wrapper.text()).toContain("Layered shell is active");
-    expect(wrapper.text()).toContain("System health");
-    expect(wrapper.text()).toContain("Registries API");
+    expect(wrapper.text()).toContain("This is the template baseline");
+    expect(wrapper.text()).toContain("Reference system health slice");
+    expect(wrapper.text()).toContain("Fullstack Template API");
     expect(wrapper.text()).toContain("postgresql");
     expect(wrapper.text()).toContain("redis");
   });

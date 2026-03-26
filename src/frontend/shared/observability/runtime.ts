@@ -26,7 +26,7 @@ const DEFAULT_CONFIG: AppObservabilityConfig = Object.freeze({
   enabled: false,
   environment: "development",
   release: "frontend-local",
-  serviceName: "registries-frontend",
+  serviceName: "fullstack-template-frontend",
   sentryEnabled: false,
   glitchtipDsn: "",
   tracingEnabled: false,
@@ -40,7 +40,7 @@ const DEFAULT_CONFIG: AppObservabilityConfig = Object.freeze({
 
 let runtimeState: ObservabilityRuntimeState = {
   config: DEFAULT_CONFIG,
-  tracer: trace.getTracer("registries-frontend.noop"),
+  tracer: trace.getTracer("fullstack-template-frontend.noop"),
   captureException: () => undefined,
   addBreadcrumb: () => undefined,
 };

@@ -22,6 +22,7 @@ def test_main_module_imports_and_runs_uvicorn(monkeypatch: pytest.MonkeyPatch) -
     main_module = importlib.import_module("main")
 
     assert main_module.app == "app"
+    assert main_module.settings is settings
     assert calls == [("logging", settings)]
 
     main_module.run()

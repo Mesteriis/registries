@@ -25,13 +25,13 @@ const healthTone = computed(() => (health.value?.status === "ok" ? "success" : "
 
 <template>
   <AppCard
-    title="System health"
-    description="Feature-level composition over shared/api and typed entity contracts."
+    title="Reference system health slice"
+    description="This feature proves the canonical /api/v1/system/health contract across backend, frontend and tests."
   >
     <EmptyState
       v-if="isLoading"
       title="Loading health snapshot"
-      description="The feature waits for a typed readiness response before rendering state details."
+      description="The reference feature waits for a typed readiness payload before rendering dependency state."
       align="start"
     />
 
@@ -73,7 +73,7 @@ const healthTone = computed(() => (health.value?.status === "ok" ? "success" : "
             size="sm"
             tone="muted"
           >
-            Readiness data is normalized through the shared HTTP client.
+            Readiness data is normalized through the shared HTTP client instead of page-local fetch logic.
           </AppText>
         </AppStack>
 
@@ -116,7 +116,7 @@ const healthTone = computed(() => (health.value?.status === "ok" ? "success" : "
     <EmptyState
       v-else
       title="No health payload"
-      description="The feature did not receive a readable readiness payload."
+      description="The reference slice did not receive a readable readiness payload."
       align="start"
     />
   </AppCard>

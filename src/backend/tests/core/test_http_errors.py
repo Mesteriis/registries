@@ -11,6 +11,7 @@ from core.errors import (
     ResourceNotFoundError,
 )
 from core.http.errors import ApiError
+from core.http.handlers import _sanitize_validation_input
 from faker import Faker
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -122,6 +123,19 @@ def test_request_validation_handler_returns_structured_payload(
         request_id=request_id,
         correlation_id=request_id,
     )
+
+
+def test_validation_input_sanitizer_redacts_sensitive_fields() -> None:
+    assert _sanitize_validation_input(field="body.password", value="super-secret") == "[REDACTED]"
+    assert _sanitize_validation_input(field="headers.authorization", value="Bearer abc") == "[REDACTED]"
+
+
+def test_validation_input_sanitizer_truncates_strings_and_filters_structures() -> None:
+    assert _sanitize_validation_input(field="query.limit", value="x" * 121) == f"{'x' * 120}..."
+    assert _sanitize_validation_input(field="body.filters", value={"role": "admin"}) == "[FILTERED]"
+    assert _sanitize_validation_input(field="body.items", value=[1, 2, 3]) == "[FILTERED]"
+    assert _sanitize_validation_input(field="query.limit", value=10) == 10
+    assert _sanitize_validation_input(field="query.enabled", value=True) is True
 
 
 def test_unhandled_error_handler_returns_internal_payload(

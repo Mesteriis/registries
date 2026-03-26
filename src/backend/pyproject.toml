@@ -1,7 +1,7 @@
 [project]
-name = "registries-backend"
+name = "fullstack-template-backend"
 version = "0.1.0"
-description = "Backend service for the monorepo"
+description = "Backend service baseline for the Fullstack Template"
 requires-python = ">=3.14,<3.15"
 dependencies = [
     "alembic>=1.16.0,<2.0.0",
@@ -38,6 +38,7 @@ dev = [
     "pip-audit>=2.9.0,<3.0.0",
     "polyfactory>=3.3.0",
     "pre-commit>=4.2.0,<5.0.0",
+    "pyyaml>=6.0.3,<7.0.0",
     "pytest>=8.3.0,<10.0.0",
     "pytest-cov>=7.1.0",
     "pyupgrade>=3.21.0,<4.0.0",

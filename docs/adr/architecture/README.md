@@ -41,3 +41,4 @@
 - [0024-introduce-a-ui-adapter-layer-ready-for-external-kits.md](./0024-introduce-a-ui-adapter-layer-ready-for-external-kits.md)
 - [0025-enforce-frontend-import-boundaries-and-architecture-validation.md](./0025-enforce-frontend-import-boundaries-and-architecture-validation.md)
 - [0026-adopt-a-lightweight-semantic-design-foundation-for-frontend-primitives.md](./0026-adopt-a-lightweight-semantic-design-foundation-for-frontend-primitives.md)
+- [0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md](./0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md)

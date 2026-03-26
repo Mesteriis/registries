@@ -12,8 +12,8 @@ export const routes: RouteRecordRaw[] = [
     name: "home",
     component: () => import("@/pages/home/ui/HomePage.vue"),
     meta: {
-      title: "Frontend foundation",
-      description: "Layered app shell, UI adapter boundary, typed API access and governed frontend checks.",
+      title: "Fullstack template frontend",
+      description: "Layered shell, shared UI boundary, typed API access and a reference system slice.",
       lazy: true,
     },
   },

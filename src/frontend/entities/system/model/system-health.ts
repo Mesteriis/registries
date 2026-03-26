@@ -1,13 +1,5 @@
-export type SystemHealthStatus = "ok" | "error";
+import type { ReadinessProbe } from "@/shared/api";
 
-export interface DependencyProbe {
-  name: string;
-  status: SystemHealthStatus;
-  detail: string | null;
-}
+export type { DependencyProbe, ReadinessProbe } from "@/shared/api";
 
-export interface ReadinessProbe {
-  status: SystemHealthStatus;
-  service: string;
-  checks: readonly DependencyProbe[];
-}
+export type SystemHealthStatus = ReadinessProbe["status"];

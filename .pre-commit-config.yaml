@@ -28,6 +28,13 @@ repos:
         pass_filenames: false
         files: &frontend_dependency_files ^(src/frontend/(package\.json|pnpm-lock\.yaml))
 
+      - id: frontend-api-generate
+        name: Generate frontend OpenAPI client
+        entry: uv run --project src/backend python scripts/generate_frontend_openapi_client.py
+        language: system
+        pass_filenames: false
+        files: &frontend_api_generation_files ^(specs/openapi/|scripts/generate_frontend_openapi_client\.py|src/frontend/shared/api/generated/)
+
       - id: backend-lint
         name: Run backend ruff --fix and format
         entry: python3 scripts/run_backend_lint_fix.py
@@ -80,6 +87,13 @@ repos:
         entry: python3 scripts/check_specs.py
         language: system
         pass_filenames: false
+
+      - id: validate-http-contract-parity
+        name: Validate HTTP contract parity across spec backend and frontend
+        entry: uv run --project src/backend python scripts/check_http_contract_parity.py
+        language: system
+        pass_filenames: false
+        files: &http_contract_files ^(specs/openapi/|src/backend/api/|src/backend/apps/system/|src/backend/core/bootstrap/app\.py|src/frontend/entities/system/|src/frontend/shared/api/|tests/contract/|scripts/check_http_contract_parity\.py|scripts/generate_frontend_openapi_client\.py)
 
       - id: validate-template-consistency
         name: Validate template consistency

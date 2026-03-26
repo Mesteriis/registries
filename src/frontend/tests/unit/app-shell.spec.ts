@@ -21,9 +21,9 @@ describe("App shell", () => {
 
     await flushPromises();
 
-    expect(wrapper.text()).toContain("Frontend foundation");
-    expect(wrapper.text()).toContain("Layered shell is active");
-    expect(wrapper.text()).toContain("Template-grade frontend");
+    expect(wrapper.text()).toContain("Fullstack template frontend");
+    expect(wrapper.text()).toContain("This is the template baseline");
+    expect(wrapper.text()).toContain("Template baseline");
   });
 });
 
@@ -35,7 +35,7 @@ function mockHealthResponse() {
       status: 200,
       json: async () => ({
         status: "ok",
-        service: "Registries API",
+        service: "Fullstack Template API",
         checks: [
           {
             name: "postgresql",

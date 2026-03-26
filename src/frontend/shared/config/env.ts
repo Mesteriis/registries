@@ -22,8 +22,22 @@ export interface AppObservabilityConfig {
 export interface AppConfig {
   appName: string;
   apiBaseUrl: string;
-  systemHealthPath: string;
   observability: AppObservabilityConfig;
+}
+
+function readApiBaseUrl(): string {
+  const configuredBaseUrl = trimTrailingSlash(readStringEnv("VITE_API_BASE_URL", ""));
+  const runtimeOrigin = globalThis.location?.origin;
+
+  if (isNonEmptyString(configuredBaseUrl)) {
+    return configuredBaseUrl;
+  }
+
+  if (isNonEmptyString(runtimeOrigin)) {
+    return trimTrailingSlash(runtimeOrigin);
+  }
+
+  return "http://localhost:5173";
 }
 
 function readStringEnv(name: keyof ImportMetaEnv, fallback: string): string {
@@ -76,25 +90,14 @@ function readNumberEnv(
   return Math.min(max, Math.max(min, parsedValue));
 }
 
-function readPathEnv(name: keyof ImportMetaEnv, fallback: string): string {
-  const value = readStringEnv(name, fallback);
-
-  if (value.startsWith("/")) {
-    return value;
-  }
-
-  return `/${value}`;
-}
-
 export const appConfig: AppConfig = Object.freeze({
-  appName: readStringEnv("VITE_APP_NAME", "Registries template"),
-  apiBaseUrl: trimTrailingSlash(readStringEnv("VITE_API_BASE_URL", "http://localhost:8000")),
-  systemHealthPath: readPathEnv("VITE_SYSTEM_HEALTH_PATH", "/api/v1/system/health"),
+  appName: readStringEnv("VITE_APP_NAME", "Fullstack Template"),
+  apiBaseUrl: readApiBaseUrl(),
   observability: Object.freeze({
     enabled: readBooleanEnv("VITE_OBSERVABILITY_ENABLED", false),
     environment: readStringEnv("VITE_OBSERVABILITY_ENVIRONMENT", import.meta.env.MODE),
     release: readStringEnv("VITE_OBSERVABILITY_RELEASE", "frontend-local"),
-    serviceName: readStringEnv("VITE_OBSERVABILITY_SERVICE_NAME", "registries-frontend"),
+    serviceName: readStringEnv("VITE_OBSERVABILITY_SERVICE_NAME", "fullstack-template-frontend"),
     sentryEnabled: readBooleanEnv("VITE_OBSERVABILITY_SENTRY_ENABLED", false),
     glitchtipDsn: readStringEnv("VITE_OBSERVABILITY_GLITCHTIP_DSN", ""),
     tracingEnabled: readBooleanEnv("VITE_OBSERVABILITY_TRACING_ENABLED", false),

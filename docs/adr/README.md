@@ -3,7 +3,7 @@
 Каталог ADR разделён на три независимые категории:
 
 - [architecture/](./architecture/README.md) - архитектурные решения и инженерные принципы, которые не должны зависеть от названия продукта.
-- [product/](./product/README.md) - доменные и продуктовые решения, которые описывают модель предметной области, жизненные циклы и правила платформы.
+- [product/](./product/README.md) - reference domain/product решения, которые показывают, как template фиксирует предметную область через ADR. Они не означают, что репозиторий уже является готовым продуктом.
 - [engineering/](./engineering/README.md) - template-level и repository-governance решения, которые описывают self-validation, metadata, CI symmetry и инженерный baseline.
 
 Перед изменением кода, CI, контрактов, runtime topology или самих ADR сначала нужно прочитать [INDEX.md](./INDEX.md). Этот файл является обязательной картой чтения для людей и ИИ-агентов.

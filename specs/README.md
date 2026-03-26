@@ -2,6 +2,10 @@
 
 `specs/` is the source of truth for contract-first development.
 
+If you are new to the repository, start with [../README.md](../README.md) and
+[../docs/getting-started.md](../docs/getting-started.md), then come back here
+when you are changing contracts.
+
 Rules:
 
 - OpenAPI documents live in `specs/openapi/` and use `*.openapi.yaml|yml|json`

@@ -1,6 +1,6 @@
 # ADR Index
 
-Этот файл является обязательной точкой входа для людей и ИИ-агентов перед изменением архитектуры, кода, CI, migration flow, контрактов и продуктовой модели.
+Этот файл является обязательной точкой входа для людей и ИИ-агентов перед изменением архитектуры, кода, CI, migration flow, контрактов и template reference domain model.
 
 Сначала нужно прочитать:
 
@@ -25,6 +25,7 @@
 - [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md) - centralized error registry и typed HTTP error projection.
 - [ADR-0021](./architecture/0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md) - centralized observability bootstrap, structured logging, tracing, metrics and GlitchTip.
 - [ADR-0022](./architecture/0022-group-backend-settings-into-nested-platform-models.md) - grouped backend settings, nested env keys and clearer config ownership.
+- [ADR-0027](./architecture/0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md) - machine-enforced parity between OpenAPI, backend routes/contracts and frontend clients/types.
 - [ADR-2000](./engineering/2000-centralize-template-metadata-and-self-consistency-checks.md) - template metadata и self-consistency enforcement.
 
 ## Reading Map By Change Area
@@ -74,7 +75,7 @@
 - [ADR-0019](./architecture/0019-centralize-persistence-behind-repositories-query-services-and-exhaustive-layer-contracts.md)
 - [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md)
 
-Если изменение затрагивает trust, verification, quarantine, promotion, metadata, audit, state или storage semantics, дополнительно читать:
+Если изменение затрагивает reference domain semantics вокруг trust, verification, quarantine, promotion, metadata, audit, state или storage, дополнительно читать:
 
 - [ADR-1000](./product/1000-artifact-immutability-and-promotion-model.md)
 - [ADR-1001](./product/1001-trust-and-verification-policy.md)
@@ -93,6 +94,7 @@
 Читать дополнительно:
 
 - [ADR-0008](./architecture/0008-layered-testing-strategy.md)
+- [ADR-0027](./architecture/0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md)
 - [ADR-0023](./architecture/0023-layer-the-frontend-into-app-pages-features-entities-and-shared.md)
 - [ADR-0024](./architecture/0024-introduce-a-ui-adapter-layer-ready-for-external-kits.md)
 - [ADR-0025](./architecture/0025-enforce-frontend-import-boundaries-and-architecture-validation.md)
