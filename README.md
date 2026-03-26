@@ -208,6 +208,8 @@ It includes:
 
 - backend endpoints under `/api/v1/system/health`, `/readyz`, `/livez`;
 - typed backend contracts for readiness and dependency checks;
+- concurrent dependency probing bounded by settings-driven timeout rules;
+- safe externally-exposed failure details with structured backend logs for operators;
 - a frontend feature that reads the health contract through the shared API client;
 - homepage composition that demonstrates the layered frontend shell;
 - tests on backend API behavior and frontend rendering.

@@ -196,6 +196,7 @@ def test_tracing_helpers_cover_provider_setup_and_flush(monkeypatch: pytest.Monk
     current_provider: dict[str, object] = {"provider": object()}
     calls: list[str] = []
     events: list[tuple[str, object]] = []
+    engine_accesses: list[str] = []
 
     def fake_get_tracer_provider() -> object:
         return current_provider["provider"]
@@ -235,7 +236,16 @@ def test_tracing_helpers_cover_provider_setup_and_flush(monkeypatch: pytest.Monk
         "RedisInstrumentor",
         lambda: SimpleNamespace(instrument=lambda: calls.append("redis")),
     )
-    monkeypatch.setattr(observability_tracing_module, "get_async_engine", lambda: SimpleNamespace(sync_engine="engine"))
+
+    def fake_get_async_engine() -> SimpleNamespace:
+        engine_accesses.append("engine")
+        return SimpleNamespace(sync_engine="engine")
+
+    monkeypatch.setattr(
+        observability_tracing_module,
+        "get_async_engine",
+        fake_get_async_engine,
+    )
     monkeypatch.setattr(app, "add_event_handler", lambda event, handler: events.append((event, handler)))
 
     assert observability_tracing_module._parse_otlp_headers("") == {}
@@ -265,9 +275,19 @@ def test_tracing_helpers_cover_provider_setup_and_flush(monkeypatch: pytest.Monk
     )
     observability_tracing_module.setup_tracing(app, settings)
     observability_tracing_module.setup_tracing(app, settings)
+    assert engine_accesses == []
+
+    for event_name, handler in events:
+        if event_name == "startup":
+            handler()
+
     current_provider["provider"] = provider
     observability_tracing_module.flush_tracing()
 
-    assert calls == ["fastapi", "sqlalchemy", "redis"]
-    assert events == [("shutdown", observability_tracing_module.flush_tracing)]
+    assert calls == ["fastapi", "redis", "sqlalchemy"]
+    assert engine_accesses == ["engine"]
+    assert events == [
+        ("startup", observability_tracing_module._instrument_sqlalchemy_once),
+        ("shutdown", observability_tracing_module.flush_tracing),
+    ]
     assert provider.flushed is True

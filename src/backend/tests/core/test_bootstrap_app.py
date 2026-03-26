@@ -2,6 +2,8 @@ from typing import Any, cast
 
 import pytest
 from core.bootstrap import app as bootstrap_app_module
+from core.bootstrap.system import close_system_redis_clients
+from core.db import dispose_async_engine
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from tests.helpers import build_settings
@@ -45,3 +47,15 @@ def test_create_app_uses_explicit_settings_without_calling_global_settings(
 
     assert app.title == "Explicit App"
     assert str(app.url_path_for("read_root")) == "/"
+
+
+def test_create_app_registers_runtime_cleanup_handlers(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(bootstrap_app_module, "setup_observability", lambda app, settings: None)
+
+    app = bootstrap_app_module.create_app(settings=build_settings())
+
+    shutdown_handlers = tuple(app.router.on_shutdown)
+    shutdown_handler_names = {(handler.__module__, handler.__name__) for handler in shutdown_handlers}
+
+    assert (dispose_async_engine.__module__, dispose_async_engine.__name__) in shutdown_handler_names
+    assert (close_system_redis_clients.__module__, close_system_redis_clients.__name__) in shutdown_handler_names

@@ -28,6 +28,7 @@ Treat these ADRs as baseline reading for almost any non-trivial task:
 - [ADR-0021](./architecture/0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md) - centralized observability bootstrap, structured logging, tracing, metrics, and GlitchTip
 - [ADR-0022](./architecture/0022-group-backend-settings-into-nested-platform-models.md) - grouped backend settings, nested env keys, and clearer config ownership
 - [ADR-0027](./architecture/0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md) - machine-enforced parity between OpenAPI, backend routes/contracts, and frontend clients/types
+- [ADR-0028](./architecture/0028-codify-backend-runtime-lifecycle-resource-ownership-and-health-slice-contract.md) - backend lifecycle ownership, shared resource reuse, and the operational contract of the system health reference slice
 - [ADR-2000](./engineering/2000-centralize-template-metadata-and-self-consistency-checks.md) - template metadata and self-consistency enforcement
 
 ## Reading Map By Change Area
@@ -60,6 +61,7 @@ Read additionally:
 - [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md)
 - [ADR-0021](./architecture/0021-centralize-backend-observability-bootstrap-and-structured-telemetry.md)
 - [ADR-0022](./architecture/0022-group-backend-settings-into-nested-platform-models.md)
+- [ADR-0028](./architecture/0028-codify-backend-runtime-lifecycle-resource-ownership-and-health-slice-contract.md)
 
 ### Backend Apps And Product Semantics
 
@@ -76,6 +78,7 @@ Read additionally:
 - [ADR-0018](./architecture/0018-enforce-typed-contracts-and-unit-of-work-owned-persistence.md)
 - [ADR-0019](./architecture/0019-centralize-persistence-behind-repositories-query-services-and-exhaustive-layer-contracts.md)
 - [ADR-0020](./architecture/0020-centralize-platform-error-registry-and-http-error-projection.md)
+- [ADR-0028](./architecture/0028-codify-backend-runtime-lifecycle-resource-ownership-and-health-slice-contract.md)
 
 If the change affects reference-domain semantics around trust, verification,
 quarantine, promotion, metadata, audit, state, or storage, also read:

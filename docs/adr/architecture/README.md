@@ -44,3 +44,4 @@ Current accepted ADRs:
 - [0025-enforce-frontend-import-boundaries-and-architecture-validation.md](./0025-enforce-frontend-import-boundaries-and-architecture-validation.md)
 - [0026-adopt-a-lightweight-semantic-design-foundation-for-frontend-primitives.md](./0026-adopt-a-lightweight-semantic-design-foundation-for-frontend-primitives.md)
 - [0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md](./0027-enforce-machine-validated-http-contract-parity-across-spec-backend-and-frontend.md)
+- [0028-codify-backend-runtime-lifecycle-resource-ownership-and-health-slice-contract.md](./0028-codify-backend-runtime-lifecycle-resource-ownership-and-health-slice-contract.md)

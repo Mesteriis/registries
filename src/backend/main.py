@@ -10,7 +10,9 @@ def bootstrap_runtime() -> tuple[Settings, FastAPI]:
 
     The module still exposes a top-level ``app`` for ASGI servers, but all
     bootstrap work is centralized here so tests and runtime composition use the
-    same explicit path.
+    same explicit path. Importing ``main`` is allowed to compose settings,
+    logging, and the FastAPI app object, but persistent infrastructure clients
+    remain lazy and shutdown-owned by the app lifecycle.
     """
 
     runtime_settings = get_settings()

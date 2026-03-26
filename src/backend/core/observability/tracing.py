@@ -68,10 +68,28 @@ def _ensure_tracer_provider(settings: Settings) -> TracerProvider:
     return trace.get_tracer_provider()  # type: ignore[return-value]
 
 
+def _instrument_sqlalchemy_once() -> None:
+    global _SQLALCHEMY_INSTRUMENTED
+
+    if _SQLALCHEMY_INSTRUMENTED:
+        return
+
+    SQLAlchemyInstrumentor().instrument(engine=get_async_engine().sync_engine)
+    _SQLALCHEMY_INSTRUMENTED = True
+
+
+def _instrument_redis_once() -> None:
+    global _REDIS_INSTRUMENTED
+
+    if _REDIS_INSTRUMENTED:
+        return
+
+    RedisInstrumentor().instrument()
+    _REDIS_INSTRUMENTED = True
+
+
 def setup_tracing(app: FastAPI, settings: Settings) -> None:
     """Configure OpenTelemetry tracing and supported client instrumentations."""
-    global _SQLALCHEMY_INSTRUMENTED, _REDIS_INSTRUMENTED
-
     if not settings.observability.enabled or not settings.observability.traces_enabled:
         return
     if not settings.observability.otlp_endpoint:
@@ -87,13 +105,12 @@ def setup_tracing(app: FastAPI, settings: Settings) -> None:
         )
         _FASTAPI_INSTRUMENTED_APPS.add(app_key)
 
-    if settings.observability.instrument_sqlalchemy and not _SQLALCHEMY_INSTRUMENTED:
-        SQLAlchemyInstrumentor().instrument(engine=get_async_engine().sync_engine)
-        _SQLALCHEMY_INSTRUMENTED = True
+    if settings.observability.instrument_sqlalchemy and not getattr(app.state, "sqlalchemy_tracing_registered", False):
+        app.add_event_handler("startup", _instrument_sqlalchemy_once)
+        app.state.sqlalchemy_tracing_registered = True
 
-    if settings.observability.instrument_redis and not _REDIS_INSTRUMENTED:
-        RedisInstrumentor().instrument()
-        _REDIS_INSTRUMENTED = True
+    if settings.observability.instrument_redis:
+        _instrument_redis_once()
 
     if not getattr(app.state, "tracing_flush_registered", False):
         app.add_event_handler("shutdown", flush_tracing)

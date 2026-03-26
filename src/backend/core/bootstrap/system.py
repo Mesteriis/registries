@@ -9,6 +9,7 @@ _SYSTEM_REDIS_CLIENTS: dict[str, Redis] = {}
 
 
 def get_system_redis_client(redis_url: str) -> Redis:
+    """Return the process-local Redis client for system health probes."""
     redis_client = _SYSTEM_REDIS_CLIENTS.get(redis_url)
     if redis_client is None:
         redis_client = Redis.from_url(redis_url)
@@ -17,6 +18,7 @@ def get_system_redis_client(redis_url: str) -> Redis:
 
 
 async def close_system_redis_clients() -> None:
+    """Close and forget all cached Redis clients owned by the app runtime."""
     clients = tuple(_SYSTEM_REDIS_CLIENTS.values())
     _SYSTEM_REDIS_CLIENTS.clear()
     for client in clients:

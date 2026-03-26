@@ -74,6 +74,39 @@ body {
   color: var(--vp-c-text-2);
 }
 
+.VPHero .actions {
+  gap: 0.9rem;
+}
+
+.VPHero .VPButton {
+  border: 1px solid rgba(130, 154, 185, 0.3);
+  background: rgba(8, 17, 29, 0.38);
+  color: var(--vp-c-text-1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 16px 36px rgba(2, 8, 17, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.VPHero .VPButton.brand {
+  border-color: rgba(99, 223, 196, 0.72);
+  background: linear-gradient(180deg, rgba(99, 223, 196, 0.18) 0%, rgba(7, 22, 20, 0.76) 100%);
+}
+
+.VPHero .VPButton.alt {
+  border-color: rgba(143, 166, 193, 0.5);
+  background: linear-gradient(180deg, rgba(24, 35, 51, 0.92) 0%, rgba(11, 20, 34, 0.96) 100%);
+}
+
+.VPHero .VPButton:hover {
+  border-color: rgba(118, 182, 255, 0.62);
+  color: var(--vp-c-text-1);
+  transform: translateY(-1px);
+}
+
+.VPHero .VPButton.brand:hover {
+  border-color: rgba(99, 223, 196, 0.88);
+  background: linear-gradient(180deg, rgba(99, 223, 196, 0.24) 0%, rgba(8, 25, 22, 0.84) 100%);
+}
+
 .VPFeature {
   border: 1px solid rgba(130, 154, 185, 0.16);
   background: linear-gradient(180deg, rgba(16, 28, 45, 0.96) 0%, rgba(11, 20, 34, 0.96) 100%);

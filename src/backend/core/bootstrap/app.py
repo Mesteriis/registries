@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api import api_router
 from core.bootstrap.system import close_system_redis_clients
+from core.db import dispose_async_engine
 from core.errors import PlatformError
 from core.http.handlers import handle_platform_error, handle_request_validation_error, handle_unexpected_error
 from core.observability import setup_observability
@@ -16,7 +17,12 @@ def _is_local_environment(environment: str) -> bool:
 
 
 def create_app(*, settings: Settings | None = None) -> FastAPI:
-    """Build the FastAPI application from an explicit settings-owned bootstrap path."""
+    """Build the FastAPI app from an explicit bootstrap path.
+
+    App composition is allowed at import time for the ASGI `app` export, but it
+    must not eagerly open database or Redis connections. Shared runtime
+    resources remain lazy and are disposed through app shutdown handlers.
+    """
     runtime_settings = settings or get_settings()
     app = FastAPI(title=runtime_settings.app.name)
     if _is_local_environment(runtime_settings.app.environment):
@@ -32,6 +38,7 @@ def create_app(*, settings: Settings | None = None) -> FastAPI:
     app.add_exception_handler(RequestValidationError, handle_request_validation_error)
     app.add_exception_handler(Exception, handle_unexpected_error)
     app.include_router(api_router, prefix=runtime_settings.api.prefix)
+    app.add_event_handler("shutdown", dispose_async_engine)
     app.add_event_handler("shutdown", close_system_redis_clients)
 
     @app.get("/", tags=["meta"], response_model=ServiceMetadata)
